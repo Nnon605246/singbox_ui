@@ -54,6 +54,5 @@ tmp/
 temp/
 *.tmp
 .claude/
-sing-box/
 .omc/
 dist/certs/
