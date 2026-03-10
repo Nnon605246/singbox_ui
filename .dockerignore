@@ -1,0 +1,37 @@
+# Node
+frontend/node_modules
+frontend/.next
+frontend/out
+
+# Go
+server/*.exe
+server/*.dll
+server/*.so
+server/*.dylib
+server/dist
+
+# Xray binaries and data files (keep .go source files)
+server/xray
+
+# Git
+.git
+.gitignore
+
+# IDE
+.vscode
+.idea
+
+# Docs
+*.md
+README.md
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Temp
+tmp
+temp
