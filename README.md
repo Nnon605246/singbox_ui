@@ -13,6 +13,8 @@
 
 </div>
 
+![Sing-box UI 界面截图](docs/image.png)
+
 ---
 
 ## 核心功能
@@ -88,7 +90,7 @@
 ```yaml
 services:
   singbox-ui:
-    image: ghcr.io/spadesa99/singbox_ui:feature-sing-box
+    image: ghcr.io/spadesa99/singbox_ui:latest
     container_name: singbox-ui
     restart: unless-stopped
     network_mode: host
