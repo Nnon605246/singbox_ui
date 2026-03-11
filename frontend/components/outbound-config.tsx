@@ -586,19 +586,22 @@ export function OutboundConfig({ showCard = true }: OutboundConfigProps) {
             if (vlessConfig.tls_alpn) {
               tlsConfig.alpn = vlessConfig.tls_alpn.split(",").map((s: string) => s.trim()).filter(Boolean)
             }
-            // uTLS 配置
-            if (vlessConfig.utls_enabled && !vlessConfig.reality_enabled) {
+            // Reality 配置（Reality 必须启用 uTLS）
+            if (vlessConfig.reality_enabled) {
               tlsConfig.utls = {
                 enabled: true,
                 fingerprint: vlessConfig.utls_fingerprint,
               }
-            }
-            // Reality 配置
-            if (vlessConfig.reality_enabled) {
               tlsConfig.reality = {
                 enabled: true,
                 public_key: vlessConfig.reality_public_key,
                 short_id: vlessConfig.reality_short_id,
+              }
+            } else if (vlessConfig.utls_enabled) {
+              // 非 Reality 模式下，uTLS 可选
+              tlsConfig.utls = {
+                enabled: true,
+                fingerprint: vlessConfig.utls_fingerprint,
               }
             }
             previewConfig.tls = tlsConfig
@@ -1462,29 +1465,48 @@ export function OutboundConfig({ showCard = true }: OutboundConfigProps) {
                       <input
                         type="checkbox"
                         checked={vlessConfig.reality_enabled}
-                        onChange={(e) => setVlessConfig({ ...vlessConfig, reality_enabled: e.target.checked, utls_enabled: false })}
+                        onChange={(e) => setVlessConfig({ ...vlessConfig, reality_enabled: e.target.checked })}
                         className="h-4 w-4 rounded border-gray-300"
                       />
                       启用 Reality
                     </label>
                   </div>
                   {vlessConfig.reality_enabled && (
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-4">
                       <div className="space-y-2">
-                        <Label>Public Key</Label>
-                        <Input
-                          placeholder="服务器公钥"
-                          value={vlessConfig.reality_public_key}
-                          onChange={(e) => setVlessConfig({ ...vlessConfig, reality_public_key: e.target.value })}
-                        />
+                        <Label>uTLS 浏览器指纹 (Reality 必需)</Label>
+                        <select
+                          className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                          value={vlessConfig.utls_fingerprint}
+                          onChange={(e) => setVlessConfig({ ...vlessConfig, utls_fingerprint: e.target.value })}
+                        >
+                          <option value="chrome">Chrome</option>
+                          <option value="firefox">Firefox</option>
+                          <option value="safari">Safari</option>
+                          <option value="edge">Edge</option>
+                          <option value="ios">iOS</option>
+                          <option value="android">Android</option>
+                          <option value="random">随机</option>
+                          <option value="randomized">随机化</option>
+                        </select>
                       </div>
-                      <div className="space-y-2">
-                        <Label>Short ID</Label>
-                        <Input
-                          placeholder="0123456789abcdef"
-                          value={vlessConfig.reality_short_id}
-                          onChange={(e) => setVlessConfig({ ...vlessConfig, reality_short_id: e.target.value })}
-                        />
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <Label>Public Key</Label>
+                          <Input
+                            placeholder="服务器公钥"
+                            value={vlessConfig.reality_public_key}
+                            onChange={(e) => setVlessConfig({ ...vlessConfig, reality_public_key: e.target.value })}
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label>Short ID</Label>
+                          <Input
+                            placeholder="0123456789abcdef"
+                            value={vlessConfig.reality_short_id}
+                            onChange={(e) => setVlessConfig({ ...vlessConfig, reality_short_id: e.target.value })}
+                          />
+                        </div>
                       </div>
                     </div>
                   )}
