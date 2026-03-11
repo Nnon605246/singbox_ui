@@ -22,13 +22,17 @@
 | 入站协议 | 出站协议 | 订阅解析 |
 |---------|---------|---------|
 | WireGuard | 所有入站协议 | VMess |
-| VLESS | direct (直连) | VLESS |
-| VMess | block (屏蔽) | Trojan |
-| Trojan | | Shadowsocks |
-| Shadowsocks | | AnyTLS |
-| Socks5 / HTTP | | Clash YAML 格式 |
+| Mixed (Socks5+HTTP) | direct (直连) | VLESS |
+| VLESS | block (屏蔽) | Trojan |
+| VMess | | Shadowsocks |
+| Trojan | | AnyTLS |
+| Shadowsocks | | Clash YAML 格式 |
 | Hysteria2 | | |
+| TUIC | | |
+| Naive | | |
+| ShadowTLS | | |
 | AnyTLS | | |
+| HTTP | | |
 
 ### TLS 证书管理
 
