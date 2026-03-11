@@ -268,52 +268,22 @@ func (d *DockerService) GetContainerLogs(tail string) (string, error) {
 	return logs, nil
 }
 
-// GetSingBoxVersion 从容器获取 sing-box 版本
+// GetSingBoxVersion 创建临时容器执行 `sing-box version` 获取版本号
 func (d *DockerService) GetSingBoxVersion() (string, error) {
-	// 首先检查容器是否存在
-	running, _, err := d.GetContainerStatus()
-	if err != nil {
-		return "", err
-	}
-
-	if running {
-		// 如果容器正在运行，通过 exec 执行命令获取版本
-		return d.execInContainer("sing-box", "version")
-	}
-
-	// 如果容器不存在或未运行，创建临时容器获取版本
-	// sing-box 镜像的入口点是 sing-box
-	config := &container.Config{
-		Image:        SingBoxImageName,
-		Cmd:          []string{"version"},
-		Tty:          false,
-		AttachStdout: true,
-		AttachStderr: true,
-	}
-
-	resp, err := d.cli.ContainerCreate(d.ctx, config, nil, nil, nil, "")
+	resp, err := d.cli.ContainerCreate(d.ctx, &container.Config{
+		Image: SingBoxImageName,
+		Cmd:   []string{"version"},
+	}, nil, nil, nil, "")
 	if err != nil {
 		return "", fmt.Errorf("failed to create temp container: %w", err)
 	}
 	defer d.cli.ContainerRemove(d.ctx, resp.ID, types.ContainerRemoveOptions{Force: true})
 
-	// 附加到容器获取输出
-	attachResp, err := d.cli.ContainerAttach(d.ctx, resp.ID, types.ContainerAttachOptions{
-		Stdout: true,
-		Stderr: true,
-		Stream: true,
-	})
-	if err != nil {
-		return "", fmt.Errorf("failed to attach to container: %w", err)
-	}
-	defer attachResp.Close()
-
-	// 启动容器
 	if err := d.cli.ContainerStart(d.ctx, resp.ID, types.ContainerStartOptions{}); err != nil {
 		return "", fmt.Errorf("failed to start temp container: %w", err)
 	}
 
-	// 等待容器完成
+	// 等待容器退出
 	statusCh, errCh := d.cli.ContainerWait(d.ctx, resp.ID, container.WaitConditionNotRunning)
 	select {
 	case err := <-errCh:
@@ -325,25 +295,25 @@ func (d *DockerService) GetSingBoxVersion() (string, error) {
 		return "", fmt.Errorf("timeout waiting for version")
 	}
 
-	// 读取输出
-	var stdout, stderr strings.Builder
-	_, err = stdcopy.StdCopy(&stdout, &stderr, attachResp.Reader)
+	// 从容器日志读取输出（容器已退出，一次性读取）
+	logReader, err := d.cli.ContainerLogs(d.ctx, resp.ID, types.ContainerLogsOptions{ShowStdout: true})
 	if err != nil {
-		return "", fmt.Errorf("failed to read output: %w", err)
+		return "", fmt.Errorf("failed to read logs: %w", err)
+	}
+	defer logReader.Close()
+
+	var stdout, stderr strings.Builder
+	_, err = stdcopy.StdCopy(&stdout, &stderr, logReader)
+	if err != nil {
+		return "", fmt.Errorf("failed to parse logs: %w", err)
 	}
 
+	// 只取第一行：sing-box version x.x.x
 	output := strings.TrimSpace(stdout.String())
-	if output == "" {
-		output = strings.TrimSpace(stderr.String())
+	if i := strings.IndexByte(output, '\n'); i != -1 {
+		output = output[:i]
 	}
-
-	// 解析版本号
-	lines := strings.Split(output, "\n")
-	if len(lines) > 0 {
-		return strings.TrimSpace(lines[0]), nil
-	}
-
-	return output, nil
+	return strings.TrimSpace(output), nil
 }
 
 // execInContainer 在运行中的容器内执行命令
