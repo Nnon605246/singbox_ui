@@ -8,6 +8,7 @@ frontend/.env
 frontend/.env.local
 frontend/.env.*.local
 frontend/.DS_Store
+frontend/*.tsbuildinfo
 frontend/*.log
 frontend/npm-debug.log*
 frontend/yarn-debug.log*
