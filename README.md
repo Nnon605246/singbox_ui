@@ -1,5 +1,7 @@
 # Sing-box UI
 
+**[English](README_EN.md) | 中文**
+
 <div align="center">
 
 [![Docker Image](https://img.shields.io/badge/ghcr.io-singbox__ui-blue?logo=docker)](https://github.com/SpadesA99/singbox_ui/pkgs/container/singbox_ui)
@@ -148,7 +150,7 @@ ssh -L 7000:127.0.0.1:7000 user@your-server
 | Next.js 16 | Go 1.24 |
 | React 19 | Gin 1.11 |
 | Tailwind CSS | Docker SDK |
-| shadcn/ui | Docker SDK |
+| shadcn/ui | |
 
 ---
 
