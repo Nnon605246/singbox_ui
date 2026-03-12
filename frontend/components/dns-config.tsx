@@ -7,12 +7,15 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Plus, Trash2, ChevronDown, ChevronUp } from "lucide-react"
 import { useSingboxConfigStore, DnsServer, DnsRule, DnsConfig } from "@/lib/store/singbox-config"
+import { useTranslation } from "@/lib/i18n"
 
 interface DnsConfigProps {
   showCard?: boolean
 }
 
 export function DnsConfigComponent({ showCard = true }: DnsConfigProps) {
+  const { t } = useTranslation("dns")
+  const { t: tc } = useTranslation("common")
   const { config, setDns } = useSingboxConfigStore()
   const initialConfig = config.dns
 
@@ -192,10 +195,10 @@ export function DnsConfigComponent({ showCard = true }: DnsConfigProps) {
     <div className="space-y-4">
       {/* DNS 模板选择 */}
       <div className="space-y-2">
-        <Label>快速模板</Label>
+        <Label>{t("quickTemplate")}</Label>
         <div className="grid grid-cols-2 gap-2">
           <Button type="button" size="sm" variant="outline" onClick={() => applyTemplate("china-optimized")}>
-            中国优化 (推荐)
+            {t("chinaOptimized")}
           </Button>
           <Button type="button" size="sm" variant="outline" onClick={() => applyTemplate("cloudflare-doh")}>
             Cloudflare DoH
@@ -204,7 +207,7 @@ export function DnsConfigComponent({ showCard = true }: DnsConfigProps) {
             Google DoH
           </Button>
           <Button type="button" size="sm" variant="outline" onClick={() => applyTemplate("simple")}>
-            简单模式
+            {t("simpleMode")}
           </Button>
         </div>
       </div>
@@ -212,16 +215,16 @@ export function DnsConfigComponent({ showCard = true }: DnsConfigProps) {
       {/* DNS 服务器列表 */}
       <div className="space-y-3">
         <div className="flex items-center justify-between">
-          <Label>DNS 服务器</Label>
+          <Label>{t("servers")}</Label>
           <Button type="button" size="sm" variant="outline" onClick={addServer}>
             <Plus className="h-4 w-4 mr-1" />
-            添加服务器
+            {t("addServer")}
           </Button>
         </div>
 
         {servers.length === 0 && (
           <div className="text-sm text-muted-foreground text-center py-8 border border-dashed rounded-lg">
-            暂无 DNS 服务器，使用上方快速模板或点击添加服务器按钮
+            {t("noServersHint")}
           </div>
         )}
 
@@ -229,7 +232,7 @@ export function DnsConfigComponent({ showCard = true }: DnsConfigProps) {
           <div key={index} className="border rounded-lg p-3 space-y-2">
             <div className="flex items-center gap-2">
               <Input
-                placeholder="标签"
+                placeholder={t("serverTag")}
                 value={server.tag}
                 onChange={(e) => updateServer(index, "tag", e.target.value)}
                 className="h-8 text-sm flex-1"
@@ -239,20 +242,20 @@ export function DnsConfigComponent({ showCard = true }: DnsConfigProps) {
                 value={server.type || "udp"}
                 onChange={(e) => updateServer(index, "type", e.target.value)}
               >
-                <option value="udp">UDP</option>
-                <option value="tcp">TCP</option>
-                <option value="https">DoH</option>
-                <option value="tls">DoT</option>
-                <option value="quic">DoQ</option>
-                <option value="h3">HTTP/3</option>
-                <option value="local">Local</option>
-                <option value="dhcp">DHCP</option>
-                <option value="fakeip">FakeIP</option>
-                <option value="hosts">Hosts</option>
+                <option value="udp">{t("typeUdp")}</option>
+                <option value="tcp">{t("typeTcp")}</option>
+                <option value="https">{t("typeHttps")}</option>
+                <option value="tls">{t("typeTls")}</option>
+                <option value="quic">{t("typeDoQ")}</option>
+                <option value="h3">{t("typeH3")}</option>
+                <option value="local">{t("typeLocal")}</option>
+                <option value="dhcp">{t("typeDhcp")}</option>
+                <option value="fakeip">{t("typeFakeip")}</option>
+                <option value="hosts">{t("typeHosts")}</option>
               </select>
               {server.type !== "local" && server.type !== "fakeip" && server.type !== "dhcp" && (
                 <Input
-                  placeholder="服务器地址"
+                  placeholder={t("serverAddr")}
                   value={server.server || ""}
                   onChange={(e) => updateServer(index, "server", e.target.value)}
                   className="h-8 text-sm flex-[2]"
@@ -280,7 +283,7 @@ export function DnsConfigComponent({ showCard = true }: DnsConfigProps) {
                   setExpandedServers(newExpanded)
                 }}
               >
-                <span>高级选项</span>
+                <span>{t("advancedOptions")}</span>
                 {expandedServers.has(index) ? (
                   <ChevronUp className="h-3 w-3" />
                 ) : (
@@ -292,7 +295,7 @@ export function DnsConfigComponent({ showCard = true }: DnsConfigProps) {
                 <div className="grid grid-cols-2 gap-2 mt-2">
                   {(server.type === "udp" || server.type === "tcp" || server.type === "tls" || server.type === "quic" || server.type === "https" || server.type === "http3") && (
                     <div className="space-y-1">
-                      <Label className="text-xs">端口</Label>
+                      <Label className="text-xs">{tc("port")}</Label>
                       <Input
                         type="number"
                         placeholder={server.type === "udp" || server.type === "tcp" ? "53" : (server.type === "tls" || server.type === "quic" ? "853" : "443")}
@@ -305,7 +308,7 @@ export function DnsConfigComponent({ showCard = true }: DnsConfigProps) {
 
                   {(server.type === "https" || server.type === "http3") && (
                     <div className="space-y-1">
-                      <Label className="text-xs">路径</Label>
+                      <Label className="text-xs">{t("path")}</Label>
                       <Input
                         placeholder="/dns-query"
                         value={server.path || ""}
@@ -317,7 +320,7 @@ export function DnsConfigComponent({ showCard = true }: DnsConfigProps) {
 
                   {server.type === "dhcp" && (
                     <div className="space-y-1">
-                      <Label className="text-xs">网络接口</Label>
+                      <Label className="text-xs">{t("networkInterface")}</Label>
                       <Input
                         placeholder="eth0"
                         value={server.interface || ""}
@@ -330,7 +333,7 @@ export function DnsConfigComponent({ showCard = true }: DnsConfigProps) {
                   {server.type === "fakeip" && (
                     <>
                       <div className="space-y-1">
-                        <Label className="text-xs">IPv4 范围</Label>
+                        <Label className="text-xs">{t("ipv4Range")}</Label>
                         <Input
                           placeholder="198.18.0.0/15"
                           value={server.inet4_range || ""}
@@ -339,7 +342,7 @@ export function DnsConfigComponent({ showCard = true }: DnsConfigProps) {
                         />
                       </div>
                       <div className="space-y-1">
-                        <Label className="text-xs">IPv6 范围</Label>
+                        <Label className="text-xs">{t("ipv6Range")}</Label>
                         <Input
                           placeholder="fc00::/18"
                           value={server.inet6_range || ""}
@@ -353,7 +356,7 @@ export function DnsConfigComponent({ showCard = true }: DnsConfigProps) {
                   {server.type !== "local" && server.type !== "fakeip" && server.type !== "dhcp" && server.type !== "hosts" && (
                     <>
                       <div className="space-y-1">
-                        <Label className="text-xs">出站代理</Label>
+                        <Label className="text-xs">{t("outboundProxy")}</Label>
                         <Input
                           placeholder="proxy"
                           value={server.detour || ""}
@@ -362,7 +365,7 @@ export function DnsConfigComponent({ showCard = true }: DnsConfigProps) {
                         />
                       </div>
                       <div className="space-y-1">
-                        <Label className="text-xs">域名解析器</Label>
+                        <Label className="text-xs">{t("domainResolver")}</Label>
                         <Input
                           placeholder="local_dns"
                           value={typeof server.domain_resolver === "string" ? server.domain_resolver : ""}
@@ -382,16 +385,16 @@ export function DnsConfigComponent({ showCard = true }: DnsConfigProps) {
       {/* DNS 规则 */}
       <div className="space-y-3">
         <div className="flex items-center justify-between">
-          <Label>DNS 规则</Label>
+          <Label>{t("rules")}</Label>
           <Button type="button" size="sm" variant="outline" onClick={addRule} disabled={availableServerTags.length === 0}>
             <Plus className="h-4 w-4 mr-1" />
-            添加规则
+            {t("addRule")}
           </Button>
         </div>
 
         {rules.length === 0 && (
           <div className="text-sm text-muted-foreground text-center py-4 border border-dashed rounded-lg">
-            暂无 DNS 规则，所有请求将使用默认服务器
+            {t("noRulesHint")}
           </div>
         )}
 
@@ -412,7 +415,7 @@ export function DnsConfigComponent({ showCard = true }: DnsConfigProps) {
                   value={rule.server || ""}
                   onChange={(e) => updateRule(index, "server", e.target.value)}
                 >
-                  <option value="">选择服务器</option>
+                  <option value="">{t("selectServer")}</option>
                   {availableServerTags.map((tag) => (
                     <option key={tag} value={tag}>
                       {tag}
@@ -421,7 +424,7 @@ export function DnsConfigComponent({ showCard = true }: DnsConfigProps) {
                 </select>
               )}
               <Input
-                placeholder="规则集 (逗号分隔)"
+                placeholder={t("ruleSetPlaceholder")}
                 value={rule.rule_set?.join(", ") || ""}
                 onChange={(e) => updateRuleArray(index, "rule_set", e.target.value)}
                 className="h-8 text-sm flex-1"
@@ -448,7 +451,7 @@ export function DnsConfigComponent({ showCard = true }: DnsConfigProps) {
                   setExpandedRules(newExpanded)
                 }}
               >
-                <span>高级选项</span>
+                <span>{t("advancedOptions")}</span>
                 {expandedRules.has(index) ? (
                   <ChevronUp className="h-3 w-3" />
                 ) : (
@@ -459,7 +462,7 @@ export function DnsConfigComponent({ showCard = true }: DnsConfigProps) {
               {expandedRules.has(index) && (
                 <div className="grid grid-cols-2 gap-2 mt-2">
                   <div className="space-y-1">
-                    <Label className="text-xs">域名 (逗号分隔)</Label>
+                    <Label className="text-xs">{t("domainCommaSeparated")}</Label>
                     <Input
                       placeholder="google.com, github.com"
                       value={rule.domain?.join(", ") || ""}
@@ -468,7 +471,7 @@ export function DnsConfigComponent({ showCard = true }: DnsConfigProps) {
                     />
                   </div>
                   <div className="space-y-1">
-                    <Label className="text-xs">域名后缀 (逗号分隔)</Label>
+                    <Label className="text-xs">{t("domainSuffix")}</Label>
                     <Input
                       placeholder=".cn, .com.cn"
                       value={rule.domain_suffix?.join(", ") || ""}
@@ -477,13 +480,13 @@ export function DnsConfigComponent({ showCard = true }: DnsConfigProps) {
                     />
                   </div>
                   <div className="space-y-1 col-span-2">
-                    <Label className="text-xs">Clash 模式</Label>
+                    <Label className="text-xs">{t("clashMode")}</Label>
                     <select
                       className="h-8 w-full rounded-md border border-input bg-background px-2 text-sm"
                       value={rule.clash_mode || ""}
                       onChange={(e) => updateRule(index, "clash_mode", e.target.value || undefined)}
                     >
-                      <option value="">不限制</option>
+                      <option value="">{t("noLimit")}</option>
                       <option value="Direct">Direct</option>
                       <option value="Global">Global</option>
                     </select>
@@ -499,13 +502,13 @@ export function DnsConfigComponent({ showCard = true }: DnsConfigProps) {
       <div className="border-t pt-3 space-y-2">
         <div className="flex items-center gap-3">
           <div className="flex-1 space-y-1">
-            <Label className="text-xs">默认 DNS 服务器</Label>
+            <Label className="text-xs">{t("defaultDnsServer")}</Label>
             <select
               className="h-8 w-full rounded-md border border-input bg-background px-2 text-sm"
               value={finalServer}
               onChange={(e) => setFinalServer(e.target.value)}
             >
-              <option value="">选择默认服务器</option>
+              <option value="">{t("selectDefaultServer")}</option>
               {availableServerTags.map((tag) => (
                 <option key={tag} value={tag}>
                   {tag}
@@ -521,7 +524,7 @@ export function DnsConfigComponent({ showCard = true }: DnsConfigProps) {
               onChange={(e) => setIndependentCache(e.target.checked)}
               className="h-4 w-4 rounded border-gray-300"
             />
-            <Label htmlFor="independent_cache" className="text-xs">独立缓存</Label>
+            <Label htmlFor="independent_cache" className="text-xs">{t("independentCache")}</Label>
           </div>
         </div>
       </div>
@@ -535,8 +538,8 @@ export function DnsConfigComponent({ showCard = true }: DnsConfigProps) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>DNS 配置</CardTitle>
-        <CardDescription>配置 DNS 服务器和规则，控制域名解析方式</CardDescription>
+        <CardTitle>{t("title")}</CardTitle>
+        <CardDescription>{t("description")}</CardDescription>
       </CardHeader>
       <CardContent>{content}</CardContent>
     </Card>

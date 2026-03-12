@@ -10,6 +10,7 @@ import { Loader2, RefreshCw, Check } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import { Checkbox } from "@/components/ui/checkbox"
 import { useSingboxConfigStore } from "@/lib/store/singbox-config"
+import { useTranslation } from "@/lib/i18n"
 
 interface ProxyNode {
   name: string
@@ -35,6 +36,8 @@ export function OutboundConfig({ showCard = true }: OutboundConfigProps) {
   const { config, setOutbound, setBalancerState } = useSingboxConfigStore()
   const initialConfig = config.outbounds?.[0]
   const { toast } = useToast()
+  const { t } = useTranslation("outbound")
+  const { t: tc } = useTranslation("common")
   const [outboundType, setOutboundType] = useState("subscription")
   const [error, setError] = useState("")
 
@@ -428,13 +431,13 @@ export function OutboundConfig({ showCard = true }: OutboundConfigProps) {
         const data = await response.json()
         setSubscriptions(data.subscriptions || [])
         toast({
-          title: "刷新成功",
-          description: `更新了 ${data.totalNodes} 个节点`,
+          title: tc("success"),
+          description: t("refreshSuccessDesc", { count: data.totalNodes }),
         })
       }
     } catch (error) {
       toast({
-        title: "刷新失败",
+        title: t("refreshFailed"),
         description: String(error),
         variant: "destructive",
       })
@@ -455,8 +458,8 @@ export function OutboundConfig({ showCard = true }: OutboundConfigProps) {
     }
     const nodeName = String(node.name || 'Unknown')
     toast({
-      title: "节点已选择",
-      description: `已选择: ${nodeName}`,
+      title: t("nodeSelectedTitle"),
+      description: t("nodeSelected", { name: nodeName }),
     })
   }
 
@@ -848,8 +851,8 @@ export function OutboundConfig({ showCard = true }: OutboundConfigProps) {
     <div className="space-y-4">
           <Tabs value={outboundType} onValueChange={setOutboundType} className="w-full">
             <TabsList className="grid w-full grid-cols-5">
-              <TabsTrigger value="subscription">订阅节点</TabsTrigger>
-              <TabsTrigger value="direct">直连</TabsTrigger>
+              <TabsTrigger value="subscription">{t("subscription")}</TabsTrigger>
+              <TabsTrigger value="direct">{t("direct")}</TabsTrigger>
               <TabsTrigger value="vless">VLESS</TabsTrigger>
               <TabsTrigger value="vmess">VMess</TabsTrigger>
               <TabsTrigger value="trojan">Trojan</TabsTrigger>
@@ -861,14 +864,14 @@ export function OutboundConfig({ showCard = true }: OutboundConfigProps) {
               <TabsTrigger value="wireguard">WireGuard</TabsTrigger>
               <TabsTrigger value="socks">Socks</TabsTrigger>
               <TabsTrigger value="http">HTTP</TabsTrigger>
-              <TabsTrigger value="block">阻断</TabsTrigger>
+              <TabsTrigger value="block">{t("block")}</TabsTrigger>
             </TabsList>
 
             {/* 订阅节点选择 */}
             <TabsContent value="subscription" className="space-y-4">
               <div className="flex items-center justify-between">
                 <div className="text-sm text-muted-foreground">
-                  共 {subscriptions.length} 个订阅，{totalNodes} 个节点
+                  {t("summaryText", { subCount: subscriptions.length, nodeCount: totalNodes })}
                 </div>
                 <div className="flex items-center gap-2">
                   <Button
@@ -882,7 +885,7 @@ export function OutboundConfig({ showCard = true }: OutboundConfigProps) {
                     ) : (
                       <RefreshCw className="h-4 w-4 mr-1" />
                     )}
-                    刷新
+                    {tc("refresh")}
                   </Button>
                 </div>
               </div>
@@ -901,13 +904,13 @@ export function OutboundConfig({ showCard = true }: OutboundConfigProps) {
                     }}
                   />
                   <Label htmlFor="enable-balancer" className="text-sm font-medium cursor-pointer">
-                    启用负载均衡（多选节点）
+                    {t("enableBalancerMultiSelect")}
                   </Label>
                   {enableBalancer && selectedNodeTags.length < 2 && (
-                    <span className="text-xs text-destructive">需至少选择2个节点</span>
+                    <span className="text-xs text-destructive">{t("minTwoNodes")}</span>
                   )}
                   {enableBalancer && selectedNodeTags.length >= 2 && (
-                    <span className="text-xs text-green-600">已选择 {selectedNodeTags.length} 个节点</span>
+                    <span className="text-xs text-green-600">{t("selectedCount", { count: selectedNodeTags.length })}</span>
                   )}
                 </div>
               )}
@@ -915,7 +918,7 @@ export function OutboundConfig({ showCard = true }: OutboundConfigProps) {
               {/* urltest 参数设置 */}
               {enableBalancer && (
                 <div className="space-y-2">
-                  <Label>测速容差 (tolerance)</Label>
+                  <Label>{t("tolerance")}</Label>
                   <div className="flex items-center gap-2">
                     <Input
                       type="number"
@@ -929,7 +932,7 @@ export function OutboundConfig({ showCard = true }: OutboundConfigProps) {
                     <span className="text-sm text-muted-foreground">ms</span>
                   </div>
                   <p className="text-xs text-muted-foreground">
-                    自动选择延迟最低的节点 (urltest)。当新节点延迟比当前节点低于容差值时才切换，默认 50ms
+                    {t("toleranceDesc")}
                   </p>
                 </div>
               )}
@@ -937,12 +940,12 @@ export function OutboundConfig({ showCard = true }: OutboundConfigProps) {
               {loadingNodes ? (
                 <div className="flex items-center justify-center py-8">
                   <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-                  <span className="ml-2 text-sm text-muted-foreground">加载中...</span>
+                  <span className="ml-2 text-sm text-muted-foreground">{tc("loading")}</span>
                 </div>
               ) : subscriptions.length === 0 ? (
                 <div className="text-center py-8 text-muted-foreground">
-                  <p>暂无订阅节点</p>
-                  <p className="text-sm mt-1">请先在"订阅"Tab 中添加订阅</p>
+                  <p>{t("noSubscriptionNodes")}</p>
+                  <p className="text-sm mt-1">{t("noSubscriptionNodesHint")}</p>
                 </div>
               ) : (
                 <div className="border rounded-lg max-h-[400px] overflow-auto">
@@ -987,7 +990,7 @@ export function OutboundConfig({ showCard = true }: OutboundConfigProps) {
                                     <Check className="h-4 w-4 text-primary flex-shrink-0" />
                                   )
                                 )}
-                                <span className="truncate text-sm">{name || `节点 ${index + 1}`}</span>
+                                <span className="truncate text-sm">{name || `${t("node")} ${index + 1}`}</span>
                                 <span className="text-xs px-1.5 py-0.5 rounded bg-primary/10 text-primary flex-shrink-0">
                                   {nodeType.toUpperCase()}
                                 </span>
@@ -1008,14 +1011,14 @@ export function OutboundConfig({ showCard = true }: OutboundConfigProps) {
             {/* Direct 配置 */}
             <TabsContent value="direct" className="space-y-4">
               <div className="text-sm text-muted-foreground">
-                直连出站将使用默认配置，无需额外设置。
+                {t("directDesc")}
               </div>
             </TabsContent>
 
             {/* Block 配置 */}
             <TabsContent value="block" className="space-y-4">
               <div className="text-sm text-muted-foreground">
-                阻断出站会丢弃所有数据，无需额外配置。
+                {t("blockDesc")}
               </div>
             </TabsContent>
 
@@ -1023,7 +1026,7 @@ export function OutboundConfig({ showCard = true }: OutboundConfigProps) {
             <TabsContent value="anytls" className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label>服务器地址</Label>
+                  <Label>{t("serverAddr")}</Label>
                   <Input
                     placeholder="example.com"
                     value={anytlsConfig.server}
@@ -1031,7 +1034,7 @@ export function OutboundConfig({ showCard = true }: OutboundConfigProps) {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label>端口</Label>
+                  <Label>{tc("port")}</Label>
                   <Input
                     type="number"
                     value={anytlsConfig.server_port}
@@ -1040,7 +1043,7 @@ export function OutboundConfig({ showCard = true }: OutboundConfigProps) {
                 </div>
               </div>
               <div className="space-y-2">
-                <Label>密码</Label>
+                <Label>{tc("password")}</Label>
                 <Input
                   placeholder="password"
                   value={anytlsConfig.password}
@@ -1050,10 +1053,10 @@ export function OutboundConfig({ showCard = true }: OutboundConfigProps) {
 
               {/* TLS 配置 */}
               <div className="border-t pt-4 mt-4 space-y-4">
-                <div className="text-sm font-medium">TLS 配置（必须启用）</div>
+                <div className="text-sm font-medium">{t("tlsRequired")}</div>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label>服务器名称 (SNI)</Label>
+                    <Label>{t("serverName")}</Label>
                     <Input
                       placeholder="example.com"
                       value={anytlsConfig.tls_server_name}
@@ -1068,7 +1071,7 @@ export function OutboundConfig({ showCard = true }: OutboundConfigProps) {
                         onChange={(e) => setAnytlsConfig({ ...anytlsConfig, tls_insecure: e.target.checked })}
                         className="h-4 w-4"
                       />
-                      跳过证书验证
+                      {t("insecure")}
                     </label>
                   </div>
                 </div>
@@ -1076,10 +1079,10 @@ export function OutboundConfig({ showCard = true }: OutboundConfigProps) {
 
               {/* 会话管理 */}
               <div className="border-t pt-4 mt-4 space-y-4">
-                <div className="text-sm font-medium">会话管理（可选）</div>
+                <div className="text-sm font-medium">{t("sessionManagement")}</div>
                 <div className="grid grid-cols-3 gap-4">
                   <div className="space-y-2">
-                    <Label>空闲检查间隔</Label>
+                    <Label>{t("idleCheckInterval")}</Label>
                     <Input
                       placeholder="30s"
                       value={anytlsConfig.idle_session_check_interval}
@@ -1087,7 +1090,7 @@ export function OutboundConfig({ showCard = true }: OutboundConfigProps) {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label>空闲超时时间</Label>
+                    <Label>{t("idleTimeout")}</Label>
                     <Input
                       placeholder="30s"
                       value={anytlsConfig.idle_session_timeout}
@@ -1095,7 +1098,7 @@ export function OutboundConfig({ showCard = true }: OutboundConfigProps) {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label>最小空闲会话数</Label>
+                    <Label>{t("minIdleSessions")}</Label>
                     <Input
                       type="number"
                       placeholder="0"
@@ -1111,7 +1114,7 @@ export function OutboundConfig({ showCard = true }: OutboundConfigProps) {
             <TabsContent value="vmess" className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label>服务器地址</Label>
+                  <Label>{t("serverAddr")}</Label>
                   <Input
                     placeholder="example.com"
                     value={vmessConfig.server}
@@ -1119,7 +1122,7 @@ export function OutboundConfig({ showCard = true }: OutboundConfigProps) {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label>端口</Label>
+                  <Label>{tc("port")}</Label>
                   <Input
                     type="number"
                     value={vmessConfig.server_port}
@@ -1145,7 +1148,7 @@ export function OutboundConfig({ showCard = true }: OutboundConfigProps) {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label>加密方式</Label>
+                  <Label>{t("security")}</Label>
                   <select
                     className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
                     value={vmessConfig.security}
@@ -1161,13 +1164,13 @@ export function OutboundConfig({ showCard = true }: OutboundConfigProps) {
               </div>
               <div className="grid grid-cols-3 gap-4">
                 <div className="space-y-2">
-                  <Label>UDP 编码</Label>
+                  <Label>{t("packetEncoding")}</Label>
                   <select
                     className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
                     value={vmessConfig.packet_encoding}
                     onChange={(e) => setVmessConfig({ ...vmessConfig, packet_encoding: e.target.value })}
                   >
-                    <option value="">禁用</option>
+                    <option value="">{tc("disabled")}</option>
                     <option value="xudp">xudp</option>
                     <option value="packetaddr">packetaddr</option>
                   </select>
@@ -1195,7 +1198,7 @@ export function OutboundConfig({ showCard = true }: OutboundConfigProps) {
               {/* TLS 配置 */}
               <div className="border-t pt-4 mt-4">
                 <div className="flex items-center gap-4 mb-4">
-                  <Label className="font-semibold">TLS 配置</Label>
+                  <Label className="font-semibold">{t("tlsSettings")}</Label>
                   <label className="flex items-center gap-2 text-sm">
                     <input
                       type="checkbox"
@@ -1203,7 +1206,7 @@ export function OutboundConfig({ showCard = true }: OutboundConfigProps) {
                       onChange={(e) => setVmessConfig({ ...vmessConfig, tls_enabled: e.target.checked })}
                       className="h-4 w-4 rounded border-gray-300"
                     />
-                    启用 TLS
+                    {t("enableTls")}
                   </label>
                   <label className="flex items-center gap-2 text-sm">
                     <input
@@ -1212,15 +1215,15 @@ export function OutboundConfig({ showCard = true }: OutboundConfigProps) {
                       onChange={(e) => setVmessConfig({ ...vmessConfig, tls_insecure: e.target.checked })}
                       className="h-4 w-4 rounded border-gray-300"
                     />
-                    跳过证书验证
+                    {t("insecure")}
                   </label>
                 </div>
                 {vmessConfig.tls_enabled && (
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label>SNI (服务器名称)</Label>
+                      <Label>{t("sniServerName")}</Label>
                       <Input
-                        placeholder="留空使用服务器地址"
+                        placeholder={t("sniPlaceholder")}
                         value={vmessConfig.tls_server_name}
                         onChange={(e) => setVmessConfig({ ...vmessConfig, tls_server_name: e.target.value })}
                       />
@@ -1248,12 +1251,12 @@ export function OutboundConfig({ showCard = true }: OutboundConfigProps) {
                         onChange={(e) => setVmessConfig({ ...vmessConfig, utls_enabled: e.target.checked })}
                         className="h-4 w-4 rounded border-gray-300"
                       />
-                      启用 uTLS 指纹
+                      {t("enableUtls")}
                     </label>
                   </div>
                   {vmessConfig.utls_enabled && (
                     <div className="space-y-2">
-                      <Label>浏览器指纹</Label>
+                      <Label>{t("browserFingerprint")}</Label>
                       <select
                         className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
                         value={vmessConfig.utls_fingerprint}
@@ -1265,8 +1268,8 @@ export function OutboundConfig({ showCard = true }: OutboundConfigProps) {
                         <option value="edge">Edge</option>
                         <option value="ios">iOS</option>
                         <option value="android">Android</option>
-                        <option value="random">随机</option>
-                        <option value="randomized">随机化</option>
+                        <option value="random">{t("random")}</option>
+                        <option value="randomized">{t("randomized")}</option>
                       </select>
                     </div>
                   )}
@@ -1276,13 +1279,13 @@ export function OutboundConfig({ showCard = true }: OutboundConfigProps) {
               {/* 传输层配置 */}
               <div className="border-t pt-4">
                 <div className="space-y-2 mb-4">
-                  <Label className="font-semibold">传输层</Label>
+                  <Label className="font-semibold">{t("transport")}</Label>
                   <select
                     className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
                     value={vmessConfig.transport_type}
                     onChange={(e) => setVmessConfig({ ...vmessConfig, transport_type: e.target.value })}
                   >
-                    <option value="">TCP (默认)</option>
+                    <option value="">{t("tcpDefault")}</option>
                     <option value="ws">WebSocket</option>
                     <option value="grpc">gRPC</option>
                     <option value="http">HTTP/2</option>
@@ -1292,7 +1295,7 @@ export function OutboundConfig({ showCard = true }: OutboundConfigProps) {
                 {(vmessConfig.transport_type === "ws" || vmessConfig.transport_type === "http" || vmessConfig.transport_type === "httpupgrade") && (
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label>路径 (Path)</Label>
+                      <Label>{t("path")}</Label>
                       <Input
                         placeholder="/"
                         value={vmessConfig.transport_path}
@@ -1311,7 +1314,7 @@ export function OutboundConfig({ showCard = true }: OutboundConfigProps) {
                 )}
                 {vmessConfig.transport_type === "grpc" && (
                   <div className="space-y-2">
-                    <Label>服务名称 (Service Name)</Label>
+                    <Label>{t("serviceName")}</Label>
                     <Input
                       placeholder="grpc_service"
                       value={vmessConfig.transport_service_name}
@@ -1326,7 +1329,7 @@ export function OutboundConfig({ showCard = true }: OutboundConfigProps) {
             <TabsContent value="vless" className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label>服务器地址</Label>
+                  <Label>{t("serverAddr")}</Label>
                   <Input
                     placeholder="example.com"
                     value={vlessConfig.server}
@@ -1334,7 +1337,7 @@ export function OutboundConfig({ showCard = true }: OutboundConfigProps) {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label>端口</Label>
+                  <Label>{tc("port")}</Label>
                   <Input
                     type="number"
                     value={vlessConfig.server_port}
@@ -1352,26 +1355,26 @@ export function OutboundConfig({ showCard = true }: OutboundConfigProps) {
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label>Flow (流控)</Label>
+                  <Label>{t("flow")}</Label>
                   <select
                     className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
                     value={vlessConfig.flow}
                     onChange={(e) => setVlessConfig({ ...vlessConfig, flow: e.target.value })}
                   >
-                    <option value="">无 (默认)</option>
-                    <option value="xtls-rprx-vision">xtls-rprx-vision (推荐)</option>
+                    <option value="">{t("noneDefault")}</option>
+                    <option value="xtls-rprx-vision">{t("xtlsVisionRecommended")}</option>
                   </select>
                 </div>
                 <div className="space-y-2">
-                  <Label>UDP 编码</Label>
+                  <Label>{t("packetEncoding")}</Label>
                   <select
                     className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
                     value={vlessConfig.packet_encoding}
                     onChange={(e) => setVlessConfig({ ...vlessConfig, packet_encoding: e.target.value })}
                   >
-                    <option value="">xudp (默认)</option>
+                    <option value="">{t("xudpDefault")}</option>
                     <option value="packetaddr">packetaddr</option>
-                    <option value="">禁用</option>
+                    <option value="">{tc("disabled")}</option>
                   </select>
                 </div>
               </div>
@@ -1379,7 +1382,7 @@ export function OutboundConfig({ showCard = true }: OutboundConfigProps) {
               {/* TLS 配置 */}
               <div className="border-t pt-4 mt-4">
                 <div className="flex items-center gap-4 mb-4">
-                  <Label className="font-semibold">TLS 配置</Label>
+                  <Label className="font-semibold">{t("tlsSettings")}</Label>
                   <label className="flex items-center gap-2 text-sm">
                     <input
                       type="checkbox"
@@ -1387,7 +1390,7 @@ export function OutboundConfig({ showCard = true }: OutboundConfigProps) {
                       onChange={(e) => setVlessConfig({ ...vlessConfig, tls_enabled: e.target.checked })}
                       className="h-4 w-4 rounded border-gray-300"
                     />
-                    启用 TLS
+                    {t("enableTls")}
                   </label>
                   <label className="flex items-center gap-2 text-sm">
                     <input
@@ -1396,15 +1399,15 @@ export function OutboundConfig({ showCard = true }: OutboundConfigProps) {
                       onChange={(e) => setVlessConfig({ ...vlessConfig, tls_insecure: e.target.checked })}
                       className="h-4 w-4 rounded border-gray-300"
                     />
-                    跳过证书验证
+                    {t("insecure")}
                   </label>
                 </div>
                 {vlessConfig.tls_enabled && (
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label>SNI (服务器名称)</Label>
+                      <Label>{t("sniServerName")}</Label>
                       <Input
-                        placeholder="留空使用服务器地址"
+                        placeholder={t("sniPlaceholder")}
                         value={vlessConfig.tls_server_name}
                         onChange={(e) => setVlessConfig({ ...vlessConfig, tls_server_name: e.target.value })}
                       />
@@ -1432,12 +1435,12 @@ export function OutboundConfig({ showCard = true }: OutboundConfigProps) {
                         onChange={(e) => setVlessConfig({ ...vlessConfig, utls_enabled: e.target.checked })}
                         className="h-4 w-4 rounded border-gray-300"
                       />
-                      启用 uTLS 指纹
+                      {t("enableUtls")}
                     </label>
                   </div>
                   {vlessConfig.utls_enabled && (
                     <div className="space-y-2">
-                      <Label>浏览器指纹</Label>
+                      <Label>{t("browserFingerprint")}</Label>
                       <select
                         className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
                         value={vlessConfig.utls_fingerprint}
@@ -1449,8 +1452,8 @@ export function OutboundConfig({ showCard = true }: OutboundConfigProps) {
                         <option value="edge">Edge</option>
                         <option value="ios">iOS</option>
                         <option value="android">Android</option>
-                        <option value="random">随机</option>
-                        <option value="randomized">随机化</option>
+                        <option value="random">{t("random")}</option>
+                        <option value="randomized">{t("randomized")}</option>
                       </select>
                     </div>
                   )}
@@ -1468,13 +1471,13 @@ export function OutboundConfig({ showCard = true }: OutboundConfigProps) {
                         onChange={(e) => setVlessConfig({ ...vlessConfig, reality_enabled: e.target.checked })}
                         className="h-4 w-4 rounded border-gray-300"
                       />
-                      启用 Reality
+                      {t("enableReality")}
                     </label>
                   </div>
                   {vlessConfig.reality_enabled && (
                     <div className="space-y-4">
                       <div className="space-y-2">
-                        <Label>uTLS 浏览器指纹 (Reality 必需)</Label>
+                        <Label>{t("utlsFingerprintRequired")}</Label>
                         <select
                           className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
                           value={vlessConfig.utls_fingerprint}
@@ -1486,15 +1489,15 @@ export function OutboundConfig({ showCard = true }: OutboundConfigProps) {
                           <option value="edge">Edge</option>
                           <option value="ios">iOS</option>
                           <option value="android">Android</option>
-                          <option value="random">随机</option>
-                          <option value="randomized">随机化</option>
+                          <option value="random">{t("random")}</option>
+                          <option value="randomized">{t("randomized")}</option>
                         </select>
                       </div>
                       <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-2">
-                          <Label>Public Key</Label>
+                          <Label>{t("realityPublicKey")}</Label>
                           <Input
-                            placeholder="服务器公钥"
+                            placeholder={t("serverPublicKeyPlaceholder")}
                             value={vlessConfig.reality_public_key}
                             onChange={(e) => setVlessConfig({ ...vlessConfig, reality_public_key: e.target.value })}
                           />
@@ -1516,13 +1519,13 @@ export function OutboundConfig({ showCard = true }: OutboundConfigProps) {
               {/* 传输层配置 */}
               <div className="border-t pt-4">
                 <div className="space-y-2 mb-4">
-                  <Label className="font-semibold">传输层</Label>
+                  <Label className="font-semibold">{t("transport")}</Label>
                   <select
                     className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
                     value={vlessConfig.transport_type}
                     onChange={(e) => setVlessConfig({ ...vlessConfig, transport_type: e.target.value })}
                   >
-                    <option value="">TCP (默认)</option>
+                    <option value="">{t("tcpDefault")}</option>
                     <option value="ws">WebSocket</option>
                     <option value="grpc">gRPC</option>
                     <option value="http">HTTP/2</option>
@@ -1532,7 +1535,7 @@ export function OutboundConfig({ showCard = true }: OutboundConfigProps) {
                 {(vlessConfig.transport_type === "ws" || vlessConfig.transport_type === "http" || vlessConfig.transport_type === "httpupgrade") && (
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label>路径 (Path)</Label>
+                      <Label>{t("path")}</Label>
                       <Input
                         placeholder="/"
                         value={vlessConfig.transport_path}
@@ -1551,7 +1554,7 @@ export function OutboundConfig({ showCard = true }: OutboundConfigProps) {
                 )}
                 {vlessConfig.transport_type === "grpc" && (
                   <div className="space-y-2">
-                    <Label>服务名称 (Service Name)</Label>
+                    <Label>{t("serviceName")}</Label>
                     <Input
                       placeholder="grpc_service"
                       value={vlessConfig.transport_service_name}
@@ -1566,7 +1569,7 @@ export function OutboundConfig({ showCard = true }: OutboundConfigProps) {
             <TabsContent value="trojan" className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label>服务器地址</Label>
+                  <Label>{t("serverAddr")}</Label>
                   <Input
                     placeholder="example.com"
                     value={trojanConfig.server}
@@ -1574,7 +1577,7 @@ export function OutboundConfig({ showCard = true }: OutboundConfigProps) {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label>端口</Label>
+                  <Label>{tc("port")}</Label>
                   <Input
                     type="number"
                     value={trojanConfig.server_port}
@@ -1583,7 +1586,7 @@ export function OutboundConfig({ showCard = true }: OutboundConfigProps) {
                 </div>
               </div>
               <div className="space-y-2">
-                <Label>密码</Label>
+                <Label>{tc("password")}</Label>
                 <Input
                   type="password"
                   value={trojanConfig.password}
@@ -1594,7 +1597,7 @@ export function OutboundConfig({ showCard = true }: OutboundConfigProps) {
               {/* TLS 配置 (Trojan 必须启用 TLS) */}
               <div className="border-t pt-4 mt-4">
                 <div className="flex items-center gap-4 mb-4">
-                  <Label className="font-semibold">TLS 配置</Label>
+                  <Label className="font-semibold">{t("tlsSettings")}</Label>
                   <label className="flex items-center gap-2 text-sm">
                     <input
                       type="checkbox"
@@ -1602,14 +1605,14 @@ export function OutboundConfig({ showCard = true }: OutboundConfigProps) {
                       onChange={(e) => setTrojanConfig({ ...trojanConfig, tls_insecure: e.target.checked })}
                       className="h-4 w-4 rounded border-gray-300"
                     />
-                    跳过证书验证
+                    {t("insecure")}
                   </label>
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label>SNI (服务器名称)</Label>
+                    <Label>{t("sniServerName")}</Label>
                     <Input
-                      placeholder="留空使用服务器地址"
+                      placeholder={t("sniPlaceholder")}
                       value={trojanConfig.tls_server_name}
                       onChange={(e) => setTrojanConfig({ ...trojanConfig, tls_server_name: e.target.value })}
                     />
@@ -1628,13 +1631,13 @@ export function OutboundConfig({ showCard = true }: OutboundConfigProps) {
               {/* 传输层配置 */}
               <div className="border-t pt-4">
                 <div className="space-y-2 mb-4">
-                  <Label className="font-semibold">传输层</Label>
+                  <Label className="font-semibold">{t("transport")}</Label>
                   <select
                     className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
                     value={trojanConfig.transport_type}
                     onChange={(e) => setTrojanConfig({ ...trojanConfig, transport_type: e.target.value })}
                   >
-                    <option value="">TCP (默认)</option>
+                    <option value="">{t("tcpDefault")}</option>
                     <option value="ws">WebSocket</option>
                     <option value="grpc">gRPC</option>
                     <option value="http">HTTP/2</option>
@@ -1644,7 +1647,7 @@ export function OutboundConfig({ showCard = true }: OutboundConfigProps) {
                 {(trojanConfig.transport_type === "ws" || trojanConfig.transport_type === "http" || trojanConfig.transport_type === "httpupgrade") && (
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label>路径 (Path)</Label>
+                      <Label>{t("path")}</Label>
                       <Input
                         placeholder="/"
                         value={trojanConfig.transport_path}
@@ -1663,7 +1666,7 @@ export function OutboundConfig({ showCard = true }: OutboundConfigProps) {
                 )}
                 {trojanConfig.transport_type === "grpc" && (
                   <div className="space-y-2">
-                    <Label>服务名称 (Service Name)</Label>
+                    <Label>{t("serviceName")}</Label>
                     <Input
                       placeholder="grpc_service"
                       value={trojanConfig.transport_service_name}
@@ -1678,7 +1681,7 @@ export function OutboundConfig({ showCard = true }: OutboundConfigProps) {
             <TabsContent value="socks" className="space-y-4">
               <div className="grid grid-cols-3 gap-4">
                 <div className="space-y-2">
-                  <Label>服务器地址</Label>
+                  <Label>{t("serverAddr")}</Label>
                   <Input
                     placeholder="127.0.0.1"
                     value={socksConfig.server}
@@ -1686,7 +1689,7 @@ export function OutboundConfig({ showCard = true }: OutboundConfigProps) {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label>端口</Label>
+                  <Label>{tc("port")}</Label>
                   <Input
                     type="number"
                     value={socksConfig.server_port}
@@ -1694,13 +1697,13 @@ export function OutboundConfig({ showCard = true }: OutboundConfigProps) {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label>SOCKS 版本</Label>
+                  <Label>{t("socksVersion")}</Label>
                   <select
                     className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
                     value={socksConfig.version}
                     onChange={(e) => setSocksConfig({ ...socksConfig, version: e.target.value })}
                   >
-                    <option value="5">SOCKS5 (默认)</option>
+                    <option value="5">{t("socks5Default")}</option>
                     <option value="4a">SOCKS4a</option>
                     <option value="4">SOCKS4</option>
                   </select>
@@ -1708,14 +1711,14 @@ export function OutboundConfig({ showCard = true }: OutboundConfigProps) {
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label>用户名（可选）</Label>
+                  <Label>{t("usernameOptional")}</Label>
                   <Input
                     value={socksConfig.username}
                     onChange={(e) => setSocksConfig({ ...socksConfig, username: e.target.value })}
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label>密码（可选）</Label>
+                  <Label>{t("passwordOptional")}</Label>
                   <Input
                     type="password"
                     value={socksConfig.password}
@@ -1729,7 +1732,7 @@ export function OutboundConfig({ showCard = true }: OutboundConfigProps) {
             <TabsContent value="http" className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label>服务器地址</Label>
+                  <Label>{t("serverAddr")}</Label>
                   <Input
                     placeholder="127.0.0.1"
                     value={httpConfig.server}
@@ -1737,7 +1740,7 @@ export function OutboundConfig({ showCard = true }: OutboundConfigProps) {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label>端口</Label>
+                  <Label>{tc("port")}</Label>
                   <Input
                     type="number"
                     value={httpConfig.server_port}
@@ -1747,14 +1750,14 @@ export function OutboundConfig({ showCard = true }: OutboundConfigProps) {
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label>用户名（可选）</Label>
+                  <Label>{t("usernameOptional")}</Label>
                   <Input
                     value={httpConfig.username}
                     onChange={(e) => setHttpConfig({ ...httpConfig, username: e.target.value })}
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label>密码（可选）</Label>
+                  <Label>{t("passwordOptional")}</Label>
                   <Input
                     type="password"
                     value={httpConfig.password}
@@ -1763,7 +1766,7 @@ export function OutboundConfig({ showCard = true }: OutboundConfigProps) {
                 </div>
               </div>
               <div className="space-y-2">
-                <Label>请求路径（可选）</Label>
+                <Label>{t("requestPathOptional")}</Label>
                 <Input
                   placeholder="/"
                   value={httpConfig.path}
@@ -1774,7 +1777,7 @@ export function OutboundConfig({ showCard = true }: OutboundConfigProps) {
               {/* TLS 配置 (用于 HTTPS 代理) */}
               <div className="border-t pt-4 mt-4">
                 <div className="flex items-center gap-4 mb-4">
-                  <Label className="font-semibold">TLS 配置</Label>
+                  <Label className="font-semibold">{t("tlsSettings")}</Label>
                   <label className="flex items-center gap-2 text-sm">
                     <input
                       type="checkbox"
@@ -1782,7 +1785,7 @@ export function OutboundConfig({ showCard = true }: OutboundConfigProps) {
                       onChange={(e) => setHttpConfig({ ...httpConfig, tls_enabled: e.target.checked })}
                       className="h-4 w-4 rounded border-gray-300"
                     />
-                    启用 TLS (HTTPS 代理)
+                    {t("enableTlsHttps")}
                   </label>
                   {httpConfig.tls_enabled && (
                     <label className="flex items-center gap-2 text-sm">
@@ -1792,15 +1795,15 @@ export function OutboundConfig({ showCard = true }: OutboundConfigProps) {
                         onChange={(e) => setHttpConfig({ ...httpConfig, tls_insecure: e.target.checked })}
                         className="h-4 w-4 rounded border-gray-300"
                       />
-                      跳过证书验证
+                      {t("insecure")}
                     </label>
                   )}
                 </div>
                 {httpConfig.tls_enabled && (
                   <div className="space-y-2">
-                    <Label>SNI (服务器名称)</Label>
+                    <Label>{t("sniServerName")}</Label>
                     <Input
-                      placeholder="留空使用服务器地址"
+                      placeholder={t("sniPlaceholder")}
                       value={httpConfig.tls_server_name}
                       onChange={(e) => setHttpConfig({ ...httpConfig, tls_server_name: e.target.value })}
                     />
@@ -1813,7 +1816,7 @@ export function OutboundConfig({ showCard = true }: OutboundConfigProps) {
             <TabsContent value="shadowsocks" className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label>服务器地址</Label>
+                  <Label>{t("serverAddr")}</Label>
                   <Input
                     placeholder="example.com"
                     value={ssConfig.server}
@@ -1821,7 +1824,7 @@ export function OutboundConfig({ showCard = true }: OutboundConfigProps) {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label>端口</Label>
+                  <Label>{tc("port")}</Label>
                   <Input
                     type="number"
                     value={ssConfig.server_port}
@@ -1830,7 +1833,7 @@ export function OutboundConfig({ showCard = true }: OutboundConfigProps) {
                 </div>
               </div>
               <div className="space-y-2">
-                <Label>加密方式</Label>
+                <Label>{t("security")}</Label>
                 <select
                   className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                   value={ssConfig.method}
@@ -1848,7 +1851,7 @@ export function OutboundConfig({ showCard = true }: OutboundConfigProps) {
                 </select>
               </div>
               <div className="space-y-2">
-                <Label>密码</Label>
+                <Label>{tc("password")}</Label>
                 <Input
                   type="text"
                   value={ssConfig.password}
@@ -1859,28 +1862,28 @@ export function OutboundConfig({ showCard = true }: OutboundConfigProps) {
               {/* 插件配置 */}
               <div className="border-t pt-4 mt-4">
                 <div className="space-y-2 mb-4">
-                  <Label className="font-semibold">SIP003 插件</Label>
+                  <Label className="font-semibold">{t("sip003Plugin")}</Label>
                   <select
                     className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
                     value={ssConfig.plugin}
                     onChange={(e) => setSsConfig({ ...ssConfig, plugin: e.target.value })}
                   >
-                    <option value="">无</option>
+                    <option value="">{tc("none")}</option>
                     <option value="obfs-local">obfs-local</option>
                     <option value="v2ray-plugin">v2ray-plugin</option>
                   </select>
                 </div>
                 {ssConfig.plugin && (
                   <div className="space-y-2">
-                    <Label>插件参数</Label>
+                    <Label>{t("pluginOpts")}</Label>
                     <Input
                       placeholder="obfs=http;obfs-host=example.com"
                       value={ssConfig.plugin_opts}
                       onChange={(e) => setSsConfig({ ...ssConfig, plugin_opts: e.target.value })}
                     />
                     <p className="text-xs text-muted-foreground">
-                      {ssConfig.plugin === "obfs-local" && "示例: obfs=http;obfs-host=example.com"}
-                      {ssConfig.plugin === "v2ray-plugin" && "示例: server;tls;host=example.com"}
+                      {ssConfig.plugin === "obfs-local" && t("obfsExample")}
+                      {ssConfig.plugin === "v2ray-plugin" && t("v2rayPluginExample")}
                     </p>
                   </div>
                 )}
@@ -1891,7 +1894,7 @@ export function OutboundConfig({ showCard = true }: OutboundConfigProps) {
             <TabsContent value="hysteria2" className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label>服务器地址</Label>
+                  <Label>{t("serverAddr")}</Label>
                   <Input
                     placeholder="example.com"
                     value={hy2Config.server}
@@ -1899,7 +1902,7 @@ export function OutboundConfig({ showCard = true }: OutboundConfigProps) {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label>端口</Label>
+                  <Label>{tc("port")}</Label>
                   <Input
                     type="number"
                     value={hy2Config.server_port}
@@ -1908,7 +1911,7 @@ export function OutboundConfig({ showCard = true }: OutboundConfigProps) {
                 </div>
               </div>
               <div className="space-y-2">
-                <Label>密码</Label>
+                <Label>{tc("password")}</Label>
                 <Input
                   type="password"
                   value={hy2Config.password}
@@ -1917,7 +1920,7 @@ export function OutboundConfig({ showCard = true }: OutboundConfigProps) {
               </div>
               <div className="grid grid-cols-3 gap-4">
                 <div className="space-y-2">
-                  <Label>上行带宽 (Mbps)</Label>
+                  <Label>{t("upBandwidth")}</Label>
                   <Input
                     type="number"
                     value={hy2Config.up_mbps}
@@ -1925,7 +1928,7 @@ export function OutboundConfig({ showCard = true }: OutboundConfigProps) {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label>下行带宽 (Mbps)</Label>
+                  <Label>{t("downBandwidth")}</Label>
                   <Input
                     type="number"
                     value={hy2Config.down_mbps}
@@ -1933,15 +1936,15 @@ export function OutboundConfig({ showCard = true }: OutboundConfigProps) {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label>网络协议</Label>
+                  <Label>{t("networkProtocol")}</Label>
                   <select
                     className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
                     value={hy2Config.network}
                     onChange={(e) => setHy2Config({ ...hy2Config, network: e.target.value })}
                   >
-                    <option value="">全部 (默认)</option>
-                    <option value="tcp">仅 TCP</option>
-                    <option value="udp">仅 UDP</option>
+                    <option value="">{t("allDefault")}</option>
+                    <option value="tcp">{t("tcpOnly")}</option>
+                    <option value="udp">{t("udpOnly")}</option>
                   </select>
                 </div>
               </div>
@@ -1949,21 +1952,21 @@ export function OutboundConfig({ showCard = true }: OutboundConfigProps) {
               {/* 混淆配置 */}
               <div className="border-t pt-4 mt-4">
                 <div className="space-y-2 mb-4">
-                  <Label className="font-semibold">QUIC 混淆 (Obfs)</Label>
+                  <Label className="font-semibold">{t("quicObfs")}</Label>
                   <select
                     className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
                     value={hy2Config.obfs_type}
                     onChange={(e) => setHy2Config({ ...hy2Config, obfs_type: e.target.value })}
                   >
-                    <option value="">禁用</option>
+                    <option value="">{tc("disabled")}</option>
                     <option value="salamander">Salamander</option>
                   </select>
                 </div>
                 {hy2Config.obfs_type === "salamander" && (
                   <div className="space-y-2">
-                    <Label>混淆密码</Label>
+                    <Label>{t("obfsPassword")}</Label>
                     <Input
-                      placeholder="混淆密码"
+                      placeholder={t("obfsPassword")}
                       value={hy2Config.obfs_password}
                       onChange={(e) => setHy2Config({ ...hy2Config, obfs_password: e.target.value })}
                     />
@@ -1974,7 +1977,7 @@ export function OutboundConfig({ showCard = true }: OutboundConfigProps) {
               {/* TLS 配置 */}
               <div className="border-t pt-4">
                 <div className="flex items-center gap-4 mb-4">
-                  <Label className="font-semibold">TLS 配置</Label>
+                  <Label className="font-semibold">{t("tlsSettings")}</Label>
                   <label className="flex items-center gap-2 text-sm">
                     <input
                       type="checkbox"
@@ -1982,14 +1985,14 @@ export function OutboundConfig({ showCard = true }: OutboundConfigProps) {
                       onChange={(e) => setHy2Config({ ...hy2Config, tls_insecure: e.target.checked })}
                       className="h-4 w-4 rounded border-gray-300"
                     />
-                    跳过证书验证
+                    {t("insecure")}
                   </label>
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label>SNI (服务器名称)</Label>
+                    <Label>{t("sniServerName")}</Label>
                     <Input
-                      placeholder="留空使用服务器地址"
+                      placeholder={t("sniPlaceholder")}
                       value={hy2Config.tls_server_name}
                       onChange={(e) => setHy2Config({ ...hy2Config, tls_server_name: e.target.value })}
                     />
@@ -2010,7 +2013,7 @@ export function OutboundConfig({ showCard = true }: OutboundConfigProps) {
             <TabsContent value="wireguard" className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label>服务器地址</Label>
+                  <Label>{t("serverAddr")}</Label>
                   <Input
                     placeholder="example.com"
                     value={wgConfig.server}
@@ -2018,7 +2021,7 @@ export function OutboundConfig({ showCard = true }: OutboundConfigProps) {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label>端口</Label>
+                  <Label>{tc("port")}</Label>
                   <Input
                     type="number"
                     value={wgConfig.server_port}
@@ -2027,25 +2030,25 @@ export function OutboundConfig({ showCard = true }: OutboundConfigProps) {
                 </div>
               </div>
               <div className="space-y-2">
-                <Label>本地私钥</Label>
+                <Label>{t("localPrivateKey")}</Label>
                 <Input
                   value={wgConfig.private_key}
                   onChange={(e) => setWgConfig({ ...wgConfig, private_key: e.target.value })}
-                  placeholder="手动输入私钥"
+                  placeholder={t("enterPrivateKey")}
                   className="font-mono text-xs"
                 />
               </div>
               <div className="space-y-2">
-                <Label>服务器公钥</Label>
+                <Label>{t("serverPublicKey")}</Label>
                 <Input
                   value={wgConfig.peer_public_key}
                   onChange={(e) => setWgConfig({ ...wgConfig, peer_public_key: e.target.value })}
-                  placeholder="输入服务器的公钥"
+                  placeholder={t("serverPublicKeyPlaceholder")}
                   className="font-mono text-xs"
                 />
               </div>
               <div className="space-y-2">
-                <Label>预共享密钥（可选）</Label>
+                <Label>{t("presharedKeyOptional")}</Label>
                 <Input
                   value={wgConfig.pre_shared_key}
                   onChange={(e) => setWgConfig({ ...wgConfig, pre_shared_key: e.target.value })}
@@ -2055,7 +2058,7 @@ export function OutboundConfig({ showCard = true }: OutboundConfigProps) {
               </div>
               <div className="grid grid-cols-3 gap-4">
                 <div className="space-y-2">
-                  <Label>本地地址</Label>
+                  <Label>{t("localAddress")}</Label>
                   <Input
                     value={wgConfig.local_address}
                     onChange={(e) => setWgConfig({ ...wgConfig, local_address: e.target.value })}
@@ -2079,7 +2082,7 @@ export function OutboundConfig({ showCard = true }: OutboundConfigProps) {
                     placeholder="0,0,0"
                     className="font-mono text-xs"
                   />
-                  <p className="text-xs text-muted-foreground">用于 Cloudflare WARP</p>
+                  <p className="text-xs text-muted-foreground">{t("forCloudflareWarp")}</p>
                 </div>
               </div>
             </TabsContent>
@@ -2095,8 +2098,8 @@ export function OutboundConfig({ showCard = true }: OutboundConfigProps) {
     return (
       <Card>
         <CardHeader>
-          <CardTitle>出站配置生成</CardTitle>
-          <CardDescription>选择协议并配置参数</CardDescription>
+          <CardTitle>{t("title")}</CardTitle>
+          <CardDescription>{t("description")}</CardDescription>
         </CardHeader>
         <CardContent>{content}</CardContent>
       </Card>

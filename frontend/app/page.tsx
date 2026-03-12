@@ -54,9 +54,13 @@ import { SubscriptionManager } from "@/components/subscription-manager"
 import { JsonEditor } from "@/components/json-editor"
 import { useSingboxConfigStore } from "@/lib/store/singbox-config"
 import { apiClient } from "@/lib/api"
+import { useTranslation } from "@/lib/i18n"
+import { LanguageSwitcher } from "@/components/language-switcher"
 
 export default function Home() {
   const { toast } = useToast()
+  const { t } = useTranslation("page")
+  const { t: tc } = useTranslation("common")
 
   // 使用全局 store
   const {
@@ -101,7 +105,6 @@ export default function Home() {
   useEffect(() => {
     loadInstances()
     checkSingboxVersion()
-    // 每5秒刷新实例状态
     const interval = setInterval(loadInstances, 5000)
     return () => clearInterval(interval)
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -119,25 +122,23 @@ export default function Home() {
     }
   }
 
-  // 选择实例
   const handleInstanceSelect = async (instanceName: string) => {
     if (instanceName === currentInstance) return
     const loaded = await loadInstanceConfig(instanceName)
     if (loaded) {
       toast({
-        title: "配置已加载",
-        description: `已加载实例 "${instanceName}" 的配置`,
+        title: t("configLoaded"),
+        description: t("configLoadedDesc", { name: instanceName }),
       })
     }
   }
 
-  // 创建新实例
   const handleCreateInstance = async () => {
     const name = newInstanceName.trim()
     if (!name) {
       toast({
-        title: "错误",
-        description: "请输入实例名称",
+        title: tc("error"),
+        description: t("nameRequired"),
         variant: "destructive",
       })
       return
@@ -145,8 +146,8 @@ export default function Home() {
 
     if (!/^[a-zA-Z0-9_-]+$/.test(name)) {
       toast({
-        title: "错误",
-        description: "名称只能包含字母、数字、下划线和连字符",
+        title: tc("error"),
+        description: t("nameInvalid"),
         variant: "destructive",
       })
       return
@@ -154,8 +155,8 @@ export default function Home() {
 
     if (instances.some(i => i.name === name)) {
       toast({
-        title: "错误",
-        description: "实例名称已存在",
+        title: tc("error"),
+        description: t("nameExists"),
         variant: "destructive",
       })
       return
@@ -163,20 +164,19 @@ export default function Home() {
 
     setCreating(true)
     try {
-      // 先清空配置到默认值，再创建新实例
       resetConfig()
       const success = await createInstance(name)
       if (success) {
         toast({
-          title: "创建成功",
-          description: `实例 "${name}" 已创建`,
+          title: t("createSuccess"),
+          description: t("createSuccessDesc", { name }),
         })
         setNewInstanceName("")
         setCreateDialogOpen(false)
       } else {
         toast({
-          title: "创建失败",
-          description: "创建实例失败",
+          title: t("createFailed"),
+          description: t("createFailedDesc"),
           variant: "destructive",
         })
       }
@@ -185,12 +185,11 @@ export default function Home() {
     }
   }
 
-  // 保存当前配置
   const handleSaveConfig = async () => {
     if (!currentInstance) {
       toast({
-        title: "错误",
-        description: "请先选择或创建一个实例",
+        title: tc("error"),
+        description: t("selectOrCreate"),
         variant: "destructive",
       })
       return
@@ -199,31 +198,30 @@ export default function Home() {
     const result = await saveInstanceConfig()
     if (result.success) {
       toast({
-        title: "保存成功",
-        description: `配置已保存到实例 "${currentInstance}"`,
+        title: t("saveSuccess"),
+        description: t("saveSuccessDesc", { name: currentInstance }),
       })
     } else {
       toast({
-        title: "保存失败",
+        title: t("saveFailed"),
         description: result.error,
         variant: "destructive",
       })
     }
   }
 
-  // 启动实例
   const handleRunInstance = async (name: string) => {
     setActionLoading(name)
     try {
       await apiClient.runInstance(name)
       toast({
-        title: "启动成功",
-        description: `实例 "${name}" 已启动`,
+        title: t("startSuccess"),
+        description: t("startSuccessDesc", { name }),
       })
       loadInstances()
     } catch (error) {
       toast({
-        title: "启动失败",
+        title: t("startFailed"),
         description: String(error),
         variant: "destructive",
       })
@@ -232,19 +230,18 @@ export default function Home() {
     }
   }
 
-  // 停止实例
   const handleStopInstance = async (name: string) => {
     setActionLoading(name)
     try {
       await apiClient.stopInstance(name)
       toast({
-        title: "停止成功",
-        description: `实例 "${name}" 已停止`,
+        title: t("stopSuccess"),
+        description: t("stopSuccessDesc", { name }),
       })
       loadInstances()
     } catch (error) {
       toast({
-        title: "停止失败",
+        title: t("stopFailed"),
         description: String(error),
         variant: "destructive",
       })
@@ -253,19 +250,18 @@ export default function Home() {
     }
   }
 
-  // 删除实例
   const handleDeleteInstance = async () => {
     if (!instanceToDelete) return
     const success = await deleteInstance(instanceToDelete)
     if (success) {
       toast({
-        title: "删除成功",
-        description: `实例 "${instanceToDelete}" 已删除`,
+        title: t("deleteSuccess"),
+        description: t("deleteSuccessDesc", { name: instanceToDelete }),
       })
     } else {
       toast({
-        title: "删除失败",
-        description: "删除实例失败",
+        title: t("deleteFailed"),
+        description: t("deleteFailedDesc"),
         variant: "destructive",
       })
     }
@@ -273,62 +269,56 @@ export default function Home() {
     setInstanceToDelete(null)
   }
 
-  // 重置配置 - 清空为默认空配置，但保留当前实例
   const handleResetConfig = () => {
     setResetDialogOpen(false)
     resetConfig()
     toast({
-      title: "配置已重置",
-      description: "所有配置已恢复为默认值",
+      title: t("configReset"),
+      description: t("configResetDesc"),
     })
   }
 
-  // 查看实例日志
   const handleViewLogs = async () => {
     if (!currentInstance) return
     setLogsLoading(true)
     setLogsDialogOpen(true)
     try {
       const response = await apiClient.getInstanceLogs(currentInstance)
-      setInstanceLogs(response.logs || "暂无日志")
+      setInstanceLogs(response.logs || t("noLogs"))
     } catch (error) {
-      setInstanceLogs("获取日志失败: " + (error instanceof Error ? error.message : "未知错误"))
+      setInstanceLogs(t("getLogsFailed") + ": " + (error instanceof Error ? error.message : tc("unknown")))
     } finally {
       setLogsLoading(false)
     }
   }
 
-  // 处理出站配置变更（用于订阅节点选择）
   const handleOutboundChange = (outbound: any) => {
     if (outbound) {
       setOutbound(0, outbound)
     }
   }
 
-  // 获取可用的出站标签（useMemo 稳定引用，避免子组件 useEffect 无限循环）
   const availableOutbounds = useMemo(() => {
     const tags = (config.outbounds ?? []).map((o) => o.tag).filter(Boolean)
     return tags.length > 0 ? tags : ["direct", "block"]
   }, [config.outbounds])
 
   const tabs = [
-    { id: "subscription" as const, label: "订阅", icon: Rss },
-    { id: "inbound" as const, label: "入站", icon: Shield },
-    { id: "outbound" as const, label: "出站", icon: ArrowRightLeft },
-    { id: "routing" as const, label: "路由", icon: Route },
-    { id: "dns" as const, label: "DNS", icon: Globe },
+    { id: "subscription" as const, label: t("tabs.subscription"), icon: Rss },
+    { id: "inbound" as const, label: t("tabs.inbound"), icon: Shield },
+    { id: "outbound" as const, label: t("tabs.outbound"), icon: ArrowRightLeft },
+    { id: "routing" as const, label: t("tabs.routing"), icon: Route },
+    { id: "dns" as const, label: t("tabs.dns"), icon: Globe },
   ]
 
-  // 格式化最后保存时间
   const formatLastSaved = () => {
     if (!lastSavedAt) return null
     const diff = Date.now() - lastSavedAt
-    if (diff < 60000) return "刚刚保存"
-    if (diff < 3600000) return `${Math.floor(diff / 60000)} 分钟前保存`
-    return `${Math.floor(diff / 3600000)} 小时前保存`
+    if (diff < 60000) return t("justSaved")
+    if (diff < 3600000) return t("minutesAgo", { n: Math.floor(diff / 60000) })
+    return t("hoursAgo", { n: Math.floor(diff / 3600000) })
   }
 
-  // 获取当前实例信息
   const currentInstanceInfo = instances.find(i => i.name === currentInstance)
 
   return (
@@ -343,18 +333,21 @@ export default function Home() {
                   <Zap className="h-5 w-5 text-white" />
                 </div>
                 <div>
-                  <h1 className="text-xl font-bold tracking-tight">sing-box 配置管理</h1>
-                  <p className="text-xs text-muted-foreground">代理服务配置面板</p>
+                  <h1 className="text-xl font-bold tracking-tight">{t("title")}</h1>
+                  <p className="text-xs text-muted-foreground">{t("subtitle")}</p>
                 </div>
               </div>
             </div>
 
-            {/* Version Indicator */}
-            <div className="flex items-center gap-2 rounded-full border border-border bg-muted px-4 py-2">
-              <Server className="h-4 w-4 text-muted-foreground" />
-              <span className="text-sm text-muted-foreground">
-                {singboxVersion || "检查中..."}
-              </span>
+            <div className="flex items-center gap-3">
+              <LanguageSwitcher />
+              {/* Version Indicator */}
+              <div className="flex items-center gap-2 rounded-full border border-border bg-muted px-4 py-2">
+                <Server className="h-4 w-4 text-muted-foreground" />
+                <span className="text-sm text-muted-foreground">
+                  {singboxVersion || tc("checking")}
+                </span>
+              </div>
             </div>
           </div>
         </div>
@@ -366,15 +359,15 @@ export default function Home() {
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
-                <Label className="text-sm font-medium">当前实例</Label>
+                <Label className="text-sm font-medium">{t("currentInstance")}</Label>
                 <Select value={currentInstance || ""} onValueChange={handleInstanceSelect}>
                   <SelectTrigger className="w-[200px]">
-                    <SelectValue placeholder="选择实例..." />
+                    <SelectValue placeholder={t("selectInstance")} />
                   </SelectTrigger>
                   <SelectContent>
                     {instances.length === 0 ? (
                       <div className="py-6 text-center text-sm text-muted-foreground">
-                        暂无实例，请点击"新建"创建
+                        {t("noInstances")}
                       </div>
                     ) : (
                       instances.map((instance) => (
@@ -395,14 +388,14 @@ export default function Home() {
                   onClick={() => setCreateDialogOpen(true)}
                 >
                   <Plus className="h-4 w-4 mr-1" />
-                  新建
+                  {tc("new")}
                 </Button>
 
                 {currentInstance && currentInstanceInfo && (
                   <>
                     <div className="h-6 w-px bg-border" />
                     <Badge variant={currentInstanceInfo.running ? "default" : "secondary"}>
-                      {currentInstanceInfo.running ? "运行中" : "已停止"}
+                      {currentInstanceInfo.running ? t("running") : t("stopped")}
                     </Badge>
 
                     {currentInstanceInfo.running ? (
@@ -438,7 +431,7 @@ export default function Home() {
                       size="sm"
                       onClick={handleViewLogs}
                       disabled={!currentInstanceInfo.running}
-                      title="查看日志"
+                      title={t("viewLogs")}
                     >
                       <FileText className="h-4 w-4" />
                     </Button>
@@ -472,7 +465,7 @@ export default function Home() {
                   size="sm"
                 >
                   <RotateCcw className="h-4 w-4 mr-2" />
-                  重置
+                  {tc("reset")}
                 </Button>
 
                 <Button
@@ -483,12 +476,12 @@ export default function Home() {
                   {isSaving ? (
                     <>
                       <RotateCw className="h-4 w-4 mr-2 animate-spin" />
-                      保存中
+                      {tc("saving")}
                     </>
                   ) : (
                     <>
                       <Save className="h-4 w-4 mr-2" />
-                      保存配置
+                      {t("saveConfig")}
                     </>
                   )}
                 </Button>
@@ -502,7 +495,7 @@ export default function Home() {
           <CardContent className="p-4">
             <div className="flex items-center gap-6">
               <div className="flex items-center gap-2">
-                <Label className="text-sm text-muted-foreground">日志级别</Label>
+                <Label className="text-sm text-muted-foreground">{t("logLevel")}</Label>
                 <Select value={config.log?.level ?? "info"} onValueChange={setLogLevel}>
                   <SelectTrigger className="w-[140px] h-9">
                     <SelectValue />
@@ -526,7 +519,7 @@ export default function Home() {
         {isLoading && (
           <div className="flex items-center justify-center py-12">
             <RotateCw className="h-8 w-8 animate-spin text-primary" />
-            <span className="ml-3 text-muted-foreground">加载配置中...</span>
+            <span className="ml-3 text-muted-foreground">{t("loadingConfig")}</span>
           </div>
         )}
 
@@ -559,9 +552,9 @@ export default function Home() {
                     <CardHeader>
                       <CardTitle className="flex items-center gap-2">
                         <Rss className="h-5 w-5 text-primary" />
-                        订阅管理
+                        {t("subscriptionTitle")}
                       </CardTitle>
-                      <CardDescription>管理订阅地址和节点</CardDescription>
+                      <CardDescription>{t("subscriptionDesc")}</CardDescription>
                     </CardHeader>
                     <CardContent>
                       <SubscriptionManager
@@ -578,9 +571,9 @@ export default function Home() {
                     <CardHeader>
                       <CardTitle className="flex items-center gap-2">
                         <Shield className="h-5 w-5 text-primary" />
-                        入站配置
+                        {t("inboundTitle")}
                       </CardTitle>
-                      <CardDescription>配置接收连接的方式和协议</CardDescription>
+                      <CardDescription>{t("inboundDesc")}</CardDescription>
                     </CardHeader>
                     <CardContent>
                       <InboundConfig showCard={false} />
@@ -593,9 +586,9 @@ export default function Home() {
                     <CardHeader>
                       <CardTitle className="flex items-center gap-2">
                         <ArrowRightLeft className="h-5 w-5 text-primary" />
-                        出站配置
+                        {t("outboundTitle")}
                       </CardTitle>
-                      <CardDescription>配置转发连接的目标和协议</CardDescription>
+                      <CardDescription>{t("outboundDesc")}</CardDescription>
                     </CardHeader>
                     <CardContent>
                       <OutboundConfig showCard={false} />
@@ -608,9 +601,9 @@ export default function Home() {
                     <CardHeader>
                       <CardTitle className="flex items-center gap-2">
                         <Route className="h-5 w-5 text-primary" />
-                        路由配置
+                        {t("routingTitle")}
                       </CardTitle>
-                      <CardDescription>配置流量路由规则和策略</CardDescription>
+                      <CardDescription>{t("routingDesc")}</CardDescription>
                     </CardHeader>
                     <CardContent>
                       <RoutingConfig
@@ -626,9 +619,9 @@ export default function Home() {
                     <CardHeader>
                       <CardTitle className="flex items-center gap-2">
                         <Globe className="h-5 w-5 text-primary" />
-                        DNS 配置
+                        {t("dnsTitle")}
                       </CardTitle>
-                      <CardDescription>配置 DNS 服务器和解析规则</CardDescription>
+                      <CardDescription>{t("dnsDesc")}</CardDescription>
                     </CardHeader>
                     <CardContent>
                       <DnsConfigComponent showCard={false} />
@@ -647,9 +640,9 @@ export default function Home() {
                     <div>
                       <CardTitle className="flex items-center gap-2">
                         <FileText className="h-5 w-5 text-primary" />
-                        配置预览
+                        {t("preview")}
                       </CardTitle>
-                      <CardDescription>实时预览完整 JSON 配置</CardDescription>
+                      <CardDescription>{t("previewDesc")}</CardDescription>
                     </div>
                     {hasConfig && (
                       <div className="flex gap-2">
@@ -663,7 +656,7 @@ export default function Home() {
                                 setEditedJson("")
                               }}
                             >
-                              取消
+                              {tc("cancel")}
                             </Button>
                             <Button
                               size="sm"
@@ -674,20 +667,20 @@ export default function Home() {
                                   setJsonEditMode(false)
                                   setEditedJson("")
                                   toast({
-                                    title: "已应用",
-                                    description: "配置已更新",
+                                    title: t("applied"),
+                                    description: t("appliedDesc"),
                                   })
                                 } catch (e) {
                                   toast({
-                                    title: "JSON 格式错误",
-                                    description: "请检查 JSON 格式是否正确",
+                                    title: t("jsonError"),
+                                    description: t("jsonErrorDesc"),
                                     variant: "destructive",
                                   })
                                 }
                               }}
                             >
                               <Check className="h-4 w-4 mr-1" />
-                              应用
+                              {tc("apply")}
                             </Button>
                           </>
                         ) : (
@@ -708,8 +701,8 @@ export default function Home() {
                               onClick={() => {
                                 navigator.clipboard.writeText(JSON.stringify(fullConfig, null, 2))
                                 toast({
-                                  title: "已复制",
-                                  description: "配置已复制到剪贴板",
+                                  title: t("copied"),
+                                  description: t("copiedDesc"),
                                 })
                               }}
                             >
@@ -732,8 +725,8 @@ export default function Home() {
                   ) : (
                     <div className="flex flex-col items-center justify-center h-[300px] text-muted-foreground">
                       <FileText className="h-12 w-12 mb-4 opacity-20" />
-                      <p className="text-sm">配置将在这里显示</p>
-                      <p className="text-xs mt-1">请先配置入站或出站</p>
+                      <p className="text-sm">{t("previewEmpty")}</p>
+                      <p className="text-xs mt-1">{t("previewEmptyHint")}</p>
                     </div>
                   )}
                 </CardContent>
@@ -747,17 +740,17 @@ export default function Home() {
       <Dialog open={createDialogOpen} onOpenChange={setCreateDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>新建配置实例</DialogTitle>
+            <DialogTitle>{t("createInstance")}</DialogTitle>
             <DialogDescription>
-              创建一个新的配置实例。每个实例运行在独立的容器中。
+              {t("createInstanceDesc")}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
             <div className="space-y-2">
-              <Label htmlFor="instance-name">实例名称</Label>
+              <Label htmlFor="instance-name">{t("instanceName")}</Label>
               <Input
                 id="instance-name"
-                placeholder="例如: proxy-hk, proxy-us"
+                placeholder={t("instanceNamePlaceholder")}
                 value={newInstanceName}
                 onChange={(e) => setNewInstanceName(e.target.value)}
                 onKeyDown={(e) => {
@@ -767,7 +760,7 @@ export default function Home() {
                 }}
               />
               <p className="text-xs text-muted-foreground">
-                名称只能包含字母、数字、下划线和连字符
+                {t("instanceNameHint")}
               </p>
             </div>
           </div>
@@ -776,18 +769,18 @@ export default function Home() {
               variant="outline"
               onClick={() => setCreateDialogOpen(false)}
             >
-              取消
+              {tc("cancel")}
             </Button>
             <Button onClick={handleCreateInstance} disabled={creating}>
               {creating ? (
                 <>
                   <RotateCw className="h-4 w-4 mr-2 animate-spin" />
-                  创建中
+                  {tc("creating")}
                 </>
               ) : (
                 <>
                   <Plus className="h-4 w-4 mr-2" />
-                  创建
+                  {tc("create")}
                 </>
               )}
             </Button>
@@ -799,18 +792,18 @@ export default function Home() {
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>确认删除</AlertDialogTitle>
+            <AlertDialogTitle>{t("confirmDelete")}</AlertDialogTitle>
             <AlertDialogDescription>
-              确定要删除实例 "{instanceToDelete}" 吗？此操作不可撤销。
+              {t("confirmDeleteDesc", { name: instanceToDelete || "" })}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>取消</AlertDialogCancel>
+            <AlertDialogCancel>{tc("cancel")}</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDeleteInstance}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
-              删除
+              {tc("delete")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -820,15 +813,15 @@ export default function Home() {
       <AlertDialog open={resetDialogOpen} onOpenChange={setResetDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>确认重置</AlertDialogTitle>
+            <AlertDialogTitle>{t("confirmReset")}</AlertDialogTitle>
             <AlertDialogDescription>
-              确定要重置配置吗？所有未保存的更改都将丢失。
+              {t("confirmResetDesc")}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>取消</AlertDialogCancel>
+            <AlertDialogCancel>{tc("cancel")}</AlertDialogCancel>
             <AlertDialogAction onClick={handleResetConfig}>
-              重置
+              {tc("reset")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -838,30 +831,30 @@ export default function Home() {
       <Dialog open={logsDialogOpen} onOpenChange={setLogsDialogOpen}>
         <DialogContent className="max-w-4xl max-h-[80vh]">
           <DialogHeader>
-            <DialogTitle>实例日志 - {currentInstance}</DialogTitle>
+            <DialogTitle>{t("instanceLogs", { name: currentInstance || "" })}</DialogTitle>
             <DialogDescription>
-              查看当前运行实例的日志输出
+              {t("instanceLogsDesc")}
             </DialogDescription>
           </DialogHeader>
           <div className="mt-4">
             {logsLoading ? (
               <div className="flex items-center justify-center py-8">
                 <RotateCw className="h-6 w-6 animate-spin text-primary" />
-                <span className="ml-2 text-muted-foreground">加载日志中...</span>
+                <span className="ml-2 text-muted-foreground">{t("loadingLogs")}</span>
               </div>
             ) : (
               <pre className="bg-muted p-4 rounded-lg text-sm overflow-auto max-h-[60vh] whitespace-pre-wrap font-mono">
-                {instanceLogs || "暂无日志"}
+                {instanceLogs || t("noLogs")}
               </pre>
             )}
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setLogsDialogOpen(false)}>
-              关闭
+              {tc("close")}
             </Button>
             <Button onClick={handleViewLogs} disabled={logsLoading}>
               <RotateCw className={`h-4 w-4 mr-2 ${logsLoading ? "animate-spin" : ""}`} />
-              刷新
+              {tc("refresh")}
             </Button>
           </DialogFooter>
         </DialogContent>

@@ -9,14 +9,15 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Download, Loader2, RefreshCw, Trash2, Plus, ChevronDown, ChevronRight, Zap } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import { apiClient } from "@/lib/api"
+import { useTranslation } from "@/lib/i18n"
 
 // 测速轮询配置
 const PROBE_POLL_MAX_ATTEMPTS = 15   // 最大轮询次数
 const PROBE_POLL_INTERVAL_MS = 1000  // 轮询间隔（毫秒）
 const PROBE_INITIAL_WAIT_MS = 2000   // 初始等待时间（毫秒）
 
-const UA_OPTIONS = [
-  { key: "default", label: "默认浏览器" },
+const UA_OPTIONS_KEYS = [
+  { key: "default", labelKey: "defaultBrowser" },
   { key: "clash-verge", label: "Clash Verge" },
   { key: "clash-meta", label: "Clash Meta" },
   { key: "v2rayn", label: "v2rayN" },
@@ -51,7 +52,14 @@ interface SubscriptionManagerProps {
 }
 
 export function SubscriptionManager({ onNodeSelect, onNodesLoaded }: SubscriptionManagerProps) {
+  const { t } = useTranslation("subscription")
+  const { t: tc } = useTranslation("common")
   const { toast } = useToast()
+
+  const UA_OPTIONS = UA_OPTIONS_KEYS.map(opt => ({
+    key: opt.key,
+    label: opt.labelKey ? t(opt.labelKey) : opt.label!,
+  }))
   const [subscriptions, setSubscriptions] = useState<SubscriptionEntry[]>([])
   const [loading, setLoading] = useState(false)
   const [initialLoading, setInitialLoading] = useState(true)
@@ -100,8 +108,8 @@ export function SubscriptionManager({ onNodeSelect, onNodesLoaded }: Subscriptio
   const addSubscription = async () => {
     if (!newName.trim() || !newUrl.trim()) {
       toast({
-        title: "错误",
-        description: "请输入订阅名称和地址",
+        title: tc("error"),
+        description: t("enterNameAndUrl"),
         variant: "destructive",
       })
       return
@@ -117,7 +125,7 @@ export function SubscriptionManager({ onNodeSelect, onNodesLoaded }: Subscriptio
 
       if (!response.ok) {
         const error = await response.json()
-        throw new Error(error.message || "添加订阅失败")
+        throw new Error(error.message || t("addFailed"))
       }
 
       const data = await response.json()
@@ -129,12 +137,12 @@ export function SubscriptionManager({ onNodeSelect, onNodesLoaded }: Subscriptio
       setAddingNew(false)
 
       toast({
-        title: "成功",
-        description: `添加订阅成功，解析到 ${data.nodeCount} 个节点`,
+        title: tc("success"),
+        description: t("addSuccess", { count: data.nodeCount }),
       })
     } catch (error) {
       toast({
-        title: "添加订阅失败",
+        title: t("addFailed"),
         description: String(error),
         variant: "destructive",
       })
@@ -152,7 +160,7 @@ export function SubscriptionManager({ onNodeSelect, onNodesLoaded }: Subscriptio
 
       if (!response.ok) {
         const error = await response.json()
-        throw new Error(error.message || "刷新订阅失败")
+        throw new Error(error.message || t("refreshFailed"))
       }
 
       const data = await response.json()
@@ -161,12 +169,12 @@ export function SubscriptionManager({ onNodeSelect, onNodesLoaded }: Subscriptio
       )
 
       toast({
-        title: "刷新成功",
-        description: `更新了 ${data.nodeCount} 个节点`,
+        title: t("refreshSuccess"),
+        description: t("refreshSuccessDesc", { count: data.nodeCount }),
       })
     } catch (error) {
       toast({
-        title: "刷新订阅失败",
+        title: t("refreshFailed"),
         description: String(error),
         variant: "destructive",
       })
@@ -187,17 +195,17 @@ export function SubscriptionManager({ onNodeSelect, onNodesLoaded }: Subscriptio
 
       if (!response.ok) {
         const error = await response.json()
-        throw new Error(error.message || "删除订阅失败")
+        throw new Error(error.message || t("deleteFailed"))
       }
 
       setSubscriptions(prev => prev.filter(sub => sub.id !== id))
       toast({
-        title: "删除成功",
-        description: "订阅已删除",
+        title: t("deleteSuccess"),
+        description: t("deleteSuccessDesc"),
       })
     } catch (error) {
       toast({
-        title: "删除订阅失败",
+        title: t("deleteFailed"),
         description: String(error),
         variant: "destructive",
       })
@@ -213,19 +221,19 @@ export function SubscriptionManager({ onNodeSelect, onNodesLoaded }: Subscriptio
 
       if (!response.ok) {
         const error = await response.json()
-        throw new Error(error.message || "刷新失败")
+        throw new Error(error.message || t("refreshAllFailed"))
       }
 
       const data = await response.json()
       setSubscriptions(data.subscriptions || [])
 
       toast({
-        title: "刷新成功",
-        description: `更新了 ${data.count} 个订阅，共 ${data.totalNodes} 个节点`,
+        title: t("refreshAllSuccess"),
+        description: t("refreshAllSuccessDesc", { count: data.count, totalNodes: data.totalNodes }),
       })
     } catch (error) {
       toast({
-        title: "刷新失败",
+        title: t("refreshAllFailed"),
         description: String(error),
         variant: "destructive",
       })
@@ -251,8 +259,8 @@ export function SubscriptionManager({ onNodeSelect, onNodesLoaded }: Subscriptio
     onNodeSelect?.(node)
     const nodeName = String(node.name || 'Unknown')
     toast({
-      title: "节点已选择",
-      description: `已选择节点: ${nodeName}`,
+      title: t("nodeSelected"),
+      description: t("nodeSelectedDesc", { name: nodeName }),
     })
   }
 
@@ -260,8 +268,8 @@ export function SubscriptionManager({ onNodeSelect, onNodesLoaded }: Subscriptio
   const probeNodes = async () => {
     if (subscriptions.length === 0) {
       toast({
-        title: "无节点",
-        description: "请先添加订阅",
+        title: t("noNodesForProbe"),
+        description: t("noNodesForProbeHint"),
         variant: "destructive",
       })
       return
@@ -272,8 +280,8 @@ export function SubscriptionManager({ onNodeSelect, onNodesLoaded }: Subscriptio
       // 同步节点到测速服务并启动测速
       const result = await apiClient.syncProberNodes()
       toast({
-        title: "测速已启动",
-        description: `正在测速 ${result.nodeCount} 个节点...`,
+        title: t("probeStarted"),
+        description: t("probeStartedDesc", { count: result.nodeCount }),
       })
 
       // 轮询等待测速完成
@@ -284,8 +292,8 @@ export function SubscriptionManager({ onNodeSelect, onNodesLoaded }: Subscriptio
           await loadSubscriptions()
           setProbing(false)
           toast({
-            title: "测速完成",
-            description: "延迟结果已更新",
+            title: t("probeComplete"),
+            description: t("probeCompleteDesc"),
           })
           return
         }
@@ -298,8 +306,8 @@ export function SubscriptionManager({ onNodeSelect, onNodesLoaded }: Subscriptio
             await loadSubscriptions()
             setProbing(false)
             toast({
-              title: "测速完成",
-              description: "延迟结果已更新",
+              title: t("probeComplete"),
+              description: t("probeCompleteDesc"),
             })
             return
           }
@@ -318,7 +326,7 @@ export function SubscriptionManager({ onNodeSelect, onNodesLoaded }: Subscriptio
     } catch (error) {
       setProbing(false)
       toast({
-        title: "测速失败",
+        title: t("probeFailed"),
         description: String(error),
         variant: "destructive",
       })
@@ -331,7 +339,7 @@ export function SubscriptionManager({ onNodeSelect, onNodesLoaded }: Subscriptio
     return (
       <div className="flex items-center justify-center py-8">
         <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-        <span className="ml-2 text-sm text-muted-foreground">加载中...</span>
+        <span className="ml-2 text-sm text-muted-foreground">{tc("loading")}</span>
       </div>
     )
   }
@@ -341,7 +349,7 @@ export function SubscriptionManager({ onNodeSelect, onNodesLoaded }: Subscriptio
       {/* 顶部操作栏 */}
       <div className="flex items-center justify-between">
         <div className="text-sm text-muted-foreground">
-          共 {subscriptions.length} 个订阅，{totalNodes} 个节点
+          {t("summaryText", { subCount: subscriptions.length, nodeCount: totalNodes })}
         </div>
         <div className="flex gap-2">
           {subscriptions.length > 0 && (
@@ -357,7 +365,7 @@ export function SubscriptionManager({ onNodeSelect, onNodesLoaded }: Subscriptio
                 ) : (
                   <Zap className="h-4 w-4 mr-1" />
                 )}
-                测速
+                {t("probe")}
               </Button>
               <Button
                 onClick={refreshAll}
@@ -370,7 +378,7 @@ export function SubscriptionManager({ onNodeSelect, onNodesLoaded }: Subscriptio
                 ) : (
                   <RefreshCw className="h-4 w-4 mr-1" />
                 )}
-                刷新全部
+                {t("refreshAll")}
               </Button>
             </>
           )}
@@ -380,7 +388,7 @@ export function SubscriptionManager({ onNodeSelect, onNodesLoaded }: Subscriptio
             disabled={addingNew}
           >
             <Plus className="h-4 w-4 mr-1" />
-            添加订阅
+            {t("addSubscription")}
           </Button>
         </div>
       </div>
@@ -389,21 +397,21 @@ export function SubscriptionManager({ onNodeSelect, onNodesLoaded }: Subscriptio
       {addingNew && (
         <Card>
           <CardHeader className="pb-3">
-            <CardTitle className="text-sm">添加新订阅</CardTitle>
+            <CardTitle className="text-sm">{t("addNewSubscription")}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
             <div className="grid grid-cols-[1fr_2fr_auto] gap-3">
               <div>
-                <Label htmlFor="sub-name">订阅名称</Label>
+                <Label htmlFor="sub-name">{t("subName")}</Label>
                 <Input
                   id="sub-name"
-                  placeholder="例如: 机场A"
+                  placeholder={t("subNamePlaceholder")}
                   value={newName}
                   onChange={(e) => setNewName(e.target.value)}
                 />
               </div>
               <div>
-                <Label htmlFor="sub-url">订阅地址</Label>
+                <Label htmlFor="sub-url">{t("subUrl")}</Label>
                 <Input
                   id="sub-url"
                   type="url"
@@ -444,7 +452,7 @@ export function SubscriptionManager({ onNodeSelect, onNodesLoaded }: Subscriptio
                   setNewUserAgent("default")
                 }}
               >
-                取消
+                {tc("cancel")}
               </Button>
               <Button size="sm" onClick={addSubscription} disabled={loading}>
                 {loading ? (
@@ -452,7 +460,7 @@ export function SubscriptionManager({ onNodeSelect, onNodesLoaded }: Subscriptio
                 ) : (
                   <Download className="h-4 w-4 mr-1" />
                 )}
-                获取订阅
+                {t("fetchSubscription")}
               </Button>
             </div>
           </CardContent>
@@ -462,8 +470,8 @@ export function SubscriptionManager({ onNodeSelect, onNodesLoaded }: Subscriptio
       {/* 订阅列表 */}
       {subscriptions.length === 0 && !addingNew ? (
         <div className="text-center py-8 text-muted-foreground">
-          <p>暂无订阅</p>
-          <p className="text-sm mt-1">点击"添加订阅"开始</p>
+          <p>{t("noSubscriptions")}</p>
+          <p className="text-sm mt-1">{t("noSubscriptionsHint")}</p>
         </div>
       ) : (
         <div className="space-y-2">
@@ -487,7 +495,7 @@ export function SubscriptionManager({ onNodeSelect, onNodesLoaded }: Subscriptio
                     </span>
                   )}
                   <span className="text-xs text-muted-foreground">
-                    ({sub.nodes?.length || 0} 个节点)
+                    ({t("nodeCount", { count: sub.nodes?.length || 0 })})
                   </span>
                 </div>
                 <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
@@ -531,7 +539,7 @@ export function SubscriptionManager({ onNodeSelect, onNodesLoaded }: Subscriptio
                       >
                         <div className="flex items-center justify-between gap-3">
                           <div className="flex items-center gap-2 flex-1 min-w-0">
-                            <span className="truncate text-sm">{name || `节点 ${index + 1}`}</span>
+                            <span className="truncate text-sm">{name || `${t("node")} ${index + 1}`}</span>
                             <span className="text-xs px-1.5 py-0.5 rounded bg-primary/10 text-primary flex-shrink-0">
                               {protocol.toUpperCase()}
                             </span>
@@ -547,7 +555,7 @@ export function SubscriptionManager({ onNodeSelect, onNodesLoaded }: Subscriptio
                                     : "text-orange-500"
                                   : "text-red-500"
                               }`}>
-                                {node.online ? `${node.latency}ms` : "超时"}
+                                {node.online ? `${node.latency}ms` : t("timeout")}
                               </span>
                             )}
                             <span className="text-xs text-muted-foreground">

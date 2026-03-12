@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Textarea } from "@/components/ui/textarea"
 import { useSingboxConfigStore, RouteRule, DNSOptions } from "@/lib/store/singbox-config"
+import { useTranslation } from "@/lib/i18n"
 
 interface RoutingConfigProps {
   showCard?: boolean
@@ -35,6 +36,7 @@ const EMPTY_OUTBOUNDS: string[] = []
 
 export function RoutingConfig({ showCard = true, availableOutbounds = EMPTY_OUTBOUNDS }: RoutingConfigProps) {
   const { config, setRouting, setDns } = useSingboxConfigStore()
+  const { t } = useTranslation("routing")
   const initialConfig = config.route
   const savedDnsRef = useRef<DNSOptions | undefined>(undefined)
 
@@ -325,12 +327,12 @@ export function RoutingConfig({ showCard = true, availableOutbounds = EMPTY_OUTB
     <div className="space-y-4">
       {/* 路由模式切换 */}
       <div className="space-y-2">
-        <Label>路由模式</Label>
+        <Label>{t("routeMode")}</Label>
         <div className="grid grid-cols-3 gap-2">
           {[
-            { value: "rules" as const, label: "规则分流" },
-            { value: "global_proxy" as const, label: "全局代理" },
-            { value: "global_direct" as const, label: "全局直连" },
+            { value: "rules" as const, label: t("ruleRouting") },
+            { value: "global_proxy" as const, label: t("globalProxy") },
+            { value: "global_direct" as const, label: t("globalDirect") },
           ].map((mode) => (
             <Button
               key={mode.value}
@@ -345,16 +347,16 @@ export function RoutingConfig({ showCard = true, availableOutbounds = EMPTY_OUTB
           ))}
         </div>
         <p className="text-xs text-muted-foreground">
-          {routeMode === "global_proxy" && "所有流量通过代理出站，忽略分流规则"}
-          {routeMode === "global_direct" && "所有流量直连，忽略分流规则"}
-          {routeMode === "rules" && "根据下方分流规则决定流量走向"}
+          {routeMode === "global_proxy" && t("globalProxyDesc")}
+          {routeMode === "global_direct" && t("globalDirectDesc")}
+          {routeMode === "rules" && t("ruleRoutingDesc")}
         </p>
       </div>
 
       {/* 以下配置仅在规则分流模式下显示 */}
       {routeMode === "rules" && <>
       <div className="space-y-2">
-        <Label>默认出站 (final)</Label>
+        <Label>{t("finalOutbound")} (final)</Label>
         <select
           className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
           value={finalOutbound}
@@ -375,62 +377,62 @@ export function RoutingConfig({ showCard = true, availableOutbounds = EMPTY_OUTB
           )}
         </select>
         <p className="text-xs text-muted-foreground">
-          当流量不匹配任何规则时使用的默认出站
+          {t("finalOutboundDesc")}
         </p>
       </div>
 
       {/* 默认域名解析器 */}
       <div className="space-y-2">
-        <Label>默认域名解析器 (default_domain_resolver)</Label>
+        <Label>{t("domainResolverLabel")}</Label>
         <Input
-          placeholder="例如: local_dns"
+          placeholder={t("domainResolverPlaceholder")}
           value={defaultDomainResolver}
           onChange={(e) => setDefaultDomainResolver(e.target.value)}
         />
         <p className="text-xs text-muted-foreground">
-          用于解析出站服务器域名的 DNS 服务器标签 (sing-box 1.12.0+ 必需)
+          {t("domainResolverDesc")}
         </p>
       </div>
 
       {/* Passwall 风格路由规则 */}
       <div className="space-y-3">
-        <Label>分流规则</Label>
+        <Label>{t("routingRules")}</Label>
         <p className="text-xs text-muted-foreground">
-          优先级: 屏蔽列表 &gt; 直连列表 &gt; 代理列表 &gt; 手动规则 &gt; 默认出站
+          {t("rulePriority")}
         </p>
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="direct">直连列表</TabsTrigger>
-            <TabsTrigger value="proxy">代理列表</TabsTrigger>
-            <TabsTrigger value="block">屏蔽列表</TabsTrigger>
+            <TabsTrigger value="direct">{t("directList")}</TabsTrigger>
+            <TabsTrigger value="proxy">{t("proxyList")}</TabsTrigger>
+            <TabsTrigger value="block">{t("blockList")}</TabsTrigger>
           </TabsList>
           <TabsList className="grid w-full grid-cols-3 mt-1">
-            <TabsTrigger value="gfw">GFW 列表</TabsTrigger>
-            <TabsTrigger value="cnDomain">中国域名</TabsTrigger>
-            <TabsTrigger value="cnIp">中国 IP</TabsTrigger>
+            <TabsTrigger value="gfw">{t("gfwList")}</TabsTrigger>
+            <TabsTrigger value="cnDomain">{t("cnDomainTab")}</TabsTrigger>
+            <TabsTrigger value="cnIp">{t("cnIpTab")}</TabsTrigger>
           </TabsList>
 
           {/* 直连列表 */}
           <TabsContent value="direct" className="space-y-4">
             <p className="text-xs text-muted-foreground">
-              加入的域名和 IP 将直接连接，不经过代理
+              {t("directDesc")}
             </p>
             <div className="space-y-2">
-              <Label>域名列表（每行一个）</Label>
+              <Label>{t("domainListLabel")}</Label>
               <Textarea
-                placeholder={"baidu.com\nqq.com\ntaobao.com\n# 以 # 开头的行为注释"}
+                placeholder={t("directDomainsPlaceholder")}
                 value={directDomains}
                 onChange={(e) => setDirectDomains(e.target.value)}
                 className="font-mono text-xs min-h-[150px]"
               />
               <p className="text-xs text-muted-foreground">
-                匹配方式为域名后缀 (domain_suffix)，如输入 baidu.com 会匹配 *.baidu.com
+                {t("domainSuffixHint", { example: "baidu.com" })}
               </p>
             </div>
             <div className="space-y-2">
-              <Label>IP / CIDR 列表（每行一个）</Label>
+              <Label>{t("ipListLabel")}</Label>
               <Textarea
-                placeholder={"192.168.0.0/16\n10.0.0.0/8\n# 纯 IP 会自动补 /32"}
+                placeholder={t("directIpsPlaceholder")}
                 value={directIps}
                 onChange={(e) => setDirectIps(e.target.value)}
                 className="font-mono text-xs min-h-[120px]"
@@ -445,7 +447,7 @@ export function RoutingConfig({ showCard = true, availableOutbounds = EMPTY_OUTB
                 className="h-4 w-4 rounded border-gray-300"
               />
               <Label htmlFor="pw_privateIpDirect" className="text-sm font-normal cursor-pointer">
-                私有 IP 直连 (10.x, 172.16.x, 192.168.x 等)
+                {t("privateIpLabel")}
               </Label>
             </div>
           </TabsContent>
@@ -453,24 +455,24 @@ export function RoutingConfig({ showCard = true, availableOutbounds = EMPTY_OUTB
           {/* 代理列表 */}
           <TabsContent value="proxy" className="space-y-4">
             <p className="text-xs text-muted-foreground">
-              加入的域名和 IP 将强制通过代理出站
+              {t("proxyDesc")}
             </p>
             <div className="space-y-2">
-              <Label>域名列表（每行一个）</Label>
+              <Label>{t("domainListLabel")}</Label>
               <Textarea
-                placeholder={"google.com\nyoutube.com\ngithub.com\n# 以 # 开头的行为注释"}
+                placeholder={t("proxyDomainsPlaceholder")}
                 value={proxyDomains}
                 onChange={(e) => setProxyDomains(e.target.value)}
                 className="font-mono text-xs min-h-[150px]"
               />
               <p className="text-xs text-muted-foreground">
-                匹配方式为域名后缀 (domain_suffix)，如输入 google.com 会匹配 *.google.com
+                {t("domainSuffixHint", { example: "google.com" })}
               </p>
             </div>
             <div className="space-y-2">
-              <Label>IP / CIDR 列表（每行一个）</Label>
+              <Label>{t("ipListLabel")}</Label>
               <Textarea
-                placeholder={"8.8.8.8\n1.1.1.1\n# 纯 IP 会自动补 /32"}
+                placeholder={t("proxyIpsPlaceholder")}
                 value={proxyIps}
                 onChange={(e) => setProxyIps(e.target.value)}
                 className="font-mono text-xs min-h-[120px]"
@@ -481,24 +483,24 @@ export function RoutingConfig({ showCard = true, availableOutbounds = EMPTY_OUTB
           {/* 屏蔽列表 */}
           <TabsContent value="block" className="space-y-4">
             <p className="text-xs text-muted-foreground">
-              加入的域名和 IP 将被阻断，无法访问
+              {t("blockDesc")}
             </p>
             <div className="space-y-2">
-              <Label>域名列表（每行一个）</Label>
+              <Label>{t("domainListLabel")}</Label>
               <Textarea
-                placeholder={"ads.example.com\ntracker.example.com\n# 以 # 开头的行为注释"}
+                placeholder={t("blockDomainsPlaceholder")}
                 value={blockDomains}
                 onChange={(e) => setBlockDomains(e.target.value)}
                 className="font-mono text-xs min-h-[150px]"
               />
               <p className="text-xs text-muted-foreground">
-                匹配方式为域名后缀 (domain_suffix)
+                {t("domainSuffixMethod")}
               </p>
             </div>
             <div className="space-y-2">
-              <Label>IP / CIDR 列表（每行一个）</Label>
+              <Label>{t("ipListLabel")}</Label>
               <Textarea
-                placeholder={"# 屏蔽特定 IP\n203.0.113.0/24"}
+                placeholder={t("blockIpsPlaceholder")}
                 value={blockIps}
                 onChange={(e) => setBlockIps(e.target.value)}
                 className="font-mono text-xs min-h-[120px]"
@@ -513,7 +515,7 @@ export function RoutingConfig({ showCard = true, availableOutbounds = EMPTY_OUTB
                 className="h-4 w-4 rounded border-gray-300"
               />
               <Label htmlFor="pw_blockAds" className="text-sm font-normal cursor-pointer">
-                屏蔽广告域名 (geosite-category-ads-all)
+                {t("blockAdsLabel")}
               </Label>
             </div>
           </TabsContent>
@@ -529,15 +531,14 @@ export function RoutingConfig({ showCard = true, availableOutbounds = EMPTY_OUTB
                 className="h-4 w-4 rounded border-gray-300"
               />
               <Label htmlFor="pw_gfw" className="text-sm font-normal cursor-pointer">
-                启用 GFW 列表
+                {t("enableGfw")}
               </Label>
             </div>
             <p className="text-sm text-muted-foreground">
-              使用 SagerNet 社区维护的 geosite-gfw 规则集，匹配的域名将通过代理出站。
-              规则集会在 sing-box 启动时自动下载并缓存。
+              {t("gfwDesc")}
             </p>
             <p className="text-xs text-muted-foreground">
-              来源: github.com/SagerNet/sing-geosite
+              {t("gfwSource")}
             </p>
           </TabsContent>
 
@@ -552,14 +553,14 @@ export function RoutingConfig({ showCard = true, availableOutbounds = EMPTY_OUTB
                 className="h-4 w-4 rounded border-gray-300"
               />
               <Label htmlFor="pw_cnDomain" className="text-sm font-normal cursor-pointer">
-                启用中国域名直连
+                {t("enableCnDomain")}
               </Label>
             </div>
             <p className="text-sm text-muted-foreground">
-              使用 geosite-cn 规则集，匹配的中国域名将直连，避免绕路。
+              {t("cnDomainDesc")}
             </p>
             <p className="text-xs text-muted-foreground">
-              来源: github.com/SagerNet/sing-geosite
+              {t("cnDomainSource")}
             </p>
           </TabsContent>
 
@@ -574,14 +575,14 @@ export function RoutingConfig({ showCard = true, availableOutbounds = EMPTY_OUTB
                 className="h-4 w-4 rounded border-gray-300"
               />
               <Label htmlFor="pw_cnIp" className="text-sm font-normal cursor-pointer">
-                启用中国 IP 直连
+                {t("enableCnIp")}
               </Label>
             </div>
             <p className="text-sm text-muted-foreground">
-              使用 geoip-cn 规则集，目标 IP 在中国大陆范围内的连接将直连。
+              {t("cnIpDesc")}
             </p>
             <p className="text-xs text-muted-foreground">
-              来源: github.com/SagerNet/sing-geoip
+              {t("cnIpSource")}
             </p>
           </TabsContent>
         </Tabs>
@@ -598,8 +599,8 @@ export function RoutingConfig({ showCard = true, availableOutbounds = EMPTY_OUTB
   return (
     <Card>
       <CardHeader>
-        <CardTitle>路由配置</CardTitle>
-        <CardDescription>配置流量路由规则，控制不同流量的转发方式</CardDescription>
+        <CardTitle>{t("title")}</CardTitle>
+        <CardDescription>{t("description")}</CardDescription>
       </CardHeader>
       <CardContent>{content}</CardContent>
     </Card>

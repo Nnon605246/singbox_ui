@@ -25,6 +25,7 @@ import {
 } from "@/lib/utils"
 import { useSingboxConfigStore } from "@/lib/store/singbox-config"
 import { apiClient } from "@/lib/api"
+import { useTranslation } from "@/lib/i18n"
 
 // sing-box 格式的 VLESS 用户
 interface VLESSUser {
@@ -83,6 +84,8 @@ interface InboundConfigProps {
 }
 
 export function InboundConfig({ showCard = true }: InboundConfigProps) {
+  const { t } = useTranslation("inbound")
+  const { t: tc } = useTranslation("common")
   const { config: storeConfig, setInbound, setEndpoint, clearEndpoints, currentInstance } = useSingboxConfigStore()
   const initialConfig = storeConfig.inbounds?.[0]
   const initialEndpoint = storeConfig.endpoints?.[0]
@@ -899,7 +902,7 @@ export function InboundConfig({ showCard = true }: InboundConfigProps) {
       const data = await response.json()
       setWgConfig({ ...wgConfig, private_key: data.privateKey })
     } catch (err) {
-      setError(err instanceof Error ? err.message : "生成密钥失败")
+      setError(err instanceof Error ? err.message : t("generateKeysFailed"))
     }
   }
 
@@ -935,7 +938,7 @@ export function InboundConfig({ showCard = true }: InboundConfigProps) {
           ip = data.ip
           setServerIP(ip)
         } else {
-          throw new Error("无法获取服务器公网 IP")
+          throw new Error(t("cannotGetPublicIp"))
         }
       }
 
@@ -950,7 +953,7 @@ export function InboundConfig({ showCard = true }: InboundConfigProps) {
       setQrCodeType("socks5")
       setShowQrCode(true)
     } catch (err) {
-      setError(err instanceof Error ? err.message : "生成二维码失败")
+      setError(err instanceof Error ? err.message : t("generateQrCodeFailed"))
     }
   }
 
@@ -959,7 +962,7 @@ export function InboundConfig({ showCard = true }: InboundConfigProps) {
     try {
       const user = vlessConfig.users[userIndex]
       if (!user || !user.uuid) {
-        throw new Error("请先设置用户 UUID")
+        throw new Error(t("setUuidFirst"))
       }
 
       let ip = serverIP
@@ -970,7 +973,7 @@ export function InboundConfig({ showCard = true }: InboundConfigProps) {
           ip = data.ip
           setServerIP(ip)
         } else {
-          throw new Error("无法获取服务器公网 IP")
+          throw new Error(t("cannotGetPublicIp"))
         }
       }
 
@@ -987,7 +990,7 @@ export function InboundConfig({ showCard = true }: InboundConfigProps) {
       setSelectedPeerIndex(userIndex)
       setShowQrCode(true)
     } catch (err) {
-      setError(err instanceof Error ? err.message : "生成二维码失败")
+      setError(err instanceof Error ? err.message : t("generateQrCodeFailed"))
     }
   }
 
@@ -995,7 +998,7 @@ export function InboundConfig({ showCard = true }: InboundConfigProps) {
     setError("")
     try {
       if (!ssConfig.password) {
-        throw new Error("请先设置密码/密钥")
+        throw new Error(t("setPasswordKeyFirst"))
       }
 
       let ip = serverIP
@@ -1006,7 +1009,7 @@ export function InboundConfig({ showCard = true }: InboundConfigProps) {
           ip = data.ip
           setServerIP(ip)
         } else {
-          throw new Error("无法获取服务器公网 IP")
+          throw new Error(t("cannotGetPublicIp"))
         }
       }
 
@@ -1018,7 +1021,7 @@ export function InboundConfig({ showCard = true }: InboundConfigProps) {
       setQrCodeType("shadowsocks")
       setShowQrCode(true)
     } catch (err) {
-      setError(err instanceof Error ? err.message : "生成二维码失败")
+      setError(err instanceof Error ? err.message : t("generateQrCodeFailed"))
     }
   }
 
@@ -1026,7 +1029,7 @@ export function InboundConfig({ showCard = true }: InboundConfigProps) {
     setError("")
     try {
       if (!hy2Config.password) {
-        throw new Error("请先设置密码")
+        throw new Error(t("setPasswordFirst"))
       }
 
       let ip = serverIP
@@ -1037,7 +1040,7 @@ export function InboundConfig({ showCard = true }: InboundConfigProps) {
           ip = data.ip
           setServerIP(ip)
         } else {
-          throw new Error("无法获取服务器公网 IP")
+          throw new Error(t("cannotGetPublicIp"))
         }
       }
 
@@ -1054,7 +1057,7 @@ export function InboundConfig({ showCard = true }: InboundConfigProps) {
       setQrCodeType("hysteria2")
       setShowQrCode(true)
     } catch (err) {
-      setError(err instanceof Error ? err.message : "生成二维码失败")
+      setError(err instanceof Error ? err.message : t("generateQrCodeFailed"))
     }
   }
 
@@ -1063,7 +1066,7 @@ export function InboundConfig({ showCard = true }: InboundConfigProps) {
     try {
       const user = vmessConfig.users[userIndex]
       if (!user || !user.uuid) {
-        throw new Error("请先设置用户 UUID")
+        throw new Error(t("setUuidFirst"))
       }
 
       let ip = serverIP
@@ -1074,7 +1077,7 @@ export function InboundConfig({ showCard = true }: InboundConfigProps) {
           ip = data.ip
           setServerIP(ip)
         } else {
-          throw new Error("无法获取服务器公网 IP")
+          throw new Error(t("cannotGetPublicIp"))
         }
       }
 
@@ -1106,7 +1109,7 @@ export function InboundConfig({ showCard = true }: InboundConfigProps) {
       setSelectedPeerIndex(userIndex)
       setShowQrCode(true)
     } catch (err) {
-      setError(err instanceof Error ? err.message : "生成二维码失败")
+      setError(err instanceof Error ? err.message : t("generateQrCodeFailed"))
     }
   }
 
@@ -1115,7 +1118,7 @@ export function InboundConfig({ showCard = true }: InboundConfigProps) {
     try {
       const user = trojanConfig.users[userIndex]
       if (!user || !user.password) {
-        throw new Error("请先设置用户密码")
+        throw new Error(t("setUserPasswordFirst"))
       }
 
       let ip = serverIP
@@ -1126,7 +1129,7 @@ export function InboundConfig({ showCard = true }: InboundConfigProps) {
           ip = data.ip
           setServerIP(ip)
         } else {
-          throw new Error("无法获取服务器公网 IP")
+          throw new Error(t("cannotGetPublicIp"))
         }
       }
 
@@ -1151,7 +1154,7 @@ export function InboundConfig({ showCard = true }: InboundConfigProps) {
       setSelectedPeerIndex(userIndex)
       setShowQrCode(true)
     } catch (err) {
-      setError(err instanceof Error ? err.message : "生成二维码失败")
+      setError(err instanceof Error ? err.message : t("generateQrCodeFailed"))
     }
   }
 
@@ -1160,7 +1163,7 @@ export function InboundConfig({ showCard = true }: InboundConfigProps) {
     try {
       const user = tuicConfig.users[userIndex]
       if (!user || !user.uuid) {
-        throw new Error("请先设置用户 UUID")
+        throw new Error(t("setUuidFirst"))
       }
 
       let ip = serverIP
@@ -1171,7 +1174,7 @@ export function InboundConfig({ showCard = true }: InboundConfigProps) {
           ip = data.ip
           setServerIP(ip)
         } else {
-          throw new Error("无法获取服务器公网 IP")
+          throw new Error(t("cannotGetPublicIp"))
         }
       }
 
@@ -1191,7 +1194,7 @@ export function InboundConfig({ showCard = true }: InboundConfigProps) {
       setSelectedPeerIndex(userIndex)
       setShowQrCode(true)
     } catch (err) {
-      setError(err instanceof Error ? err.message : "生成二维码失败")
+      setError(err instanceof Error ? err.message : t("generateQrCodeFailed"))
     }
   }
 
@@ -1259,14 +1262,14 @@ AllowedIPs = 0.0.0.0/0, ::/0
         }
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : "生成密钥失败")
+      setError(err instanceof Error ? err.message : t("generateKeysFailed"))
     }
   }
 
   const downloadPeerConfig = async (peerIndex: number) => {
     const peer = wgConfig.peers[peerIndex]
     if (!peer.privateKey || !wgConfig.private_key) {
-      setError("请先生成密钥")
+      setError(t("generateKeysFirst"))
       return
     }
 
@@ -1306,14 +1309,14 @@ PersistentKeepalive = 25
       document.body.removeChild(a)
       URL.revokeObjectURL(url)
     } catch (err) {
-      setError(err instanceof Error ? err.message : "下载配置失败")
+      setError(err instanceof Error ? err.message : t("downloadConfigFailed"))
     }
   }
 
   const showPeerQrCode = async (peerIndex: number) => {
     const peer = wgConfig.peers[peerIndex]
     if (!peer.privateKey || !wgConfig.private_key) {
-      setError("请先生成密钥")
+      setError(t("generateKeysFirst"))
       return
     }
 
@@ -1348,14 +1351,14 @@ PersistentKeepalive = 25`
       setSelectedPeerIndex(peerIndex)
       setShowQrCode(true)
     } catch (err) {
-      setError(err instanceof Error ? err.message : "生成二维码失败")
+      setError(err instanceof Error ? err.message : t("generateQrCodeFailed"))
     }
   }
 
   const generateSelfSignedCert = async (domain?: string) => {
     // 使用全局 store 中的 currentInstance
     if (!currentInstance) {
-      setError("请先选择一个配置实例")
+      setError(t("selectInstanceFirst"))
       return
     }
 
@@ -1380,7 +1383,7 @@ PersistentKeepalive = 25`
         valid_to: result.valid_to,
       })
     } catch (err) {
-      setError(err instanceof Error ? err.message : "生成证书失败")
+      setError(err instanceof Error ? err.message : t("generateCertFailed"))
     } finally {
       setCertLoading(false)
     }
@@ -1389,7 +1392,7 @@ PersistentKeepalive = 25`
   // 上传证书文件
   const handleUploadCertificate = async (certFile: File, keyFile: File) => {
     if (!currentInstance) {
-      setError("请先选择一个配置实例")
+      setError(t("selectInstanceFirst"))
       return
     }
 
@@ -1402,7 +1405,7 @@ PersistentKeepalive = 25`
         valid_to: result.valid_to,
       })
     } catch (err) {
-      setError(err instanceof Error ? err.message : "上传证书失败")
+      setError(err instanceof Error ? err.message : t("uploadCertFailed"))
     } finally {
       setCertLoading(false)
     }
@@ -1457,18 +1460,18 @@ PersistentKeepalive = 25`
         <TabsContent value="socks5" className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label>监听地址</Label>
+              <Label>{t("listenAddr")}</Label>
               <Input
                 value={mixedConfig.listen}
                 onChange={(e) => setMixedConfig({ ...mixedConfig, listen: e.target.value })}
                 className={!isValidListenAddress(mixedConfig.listen) ? "border-red-500" : ""}
               />
               {!isValidListenAddress(mixedConfig.listen) && (
-                <p className="text-xs text-red-500">请输入有效的 IP 地址</p>
+                <p className="text-xs text-red-500">{t("invalidIpAddr")}</p>
               )}
             </div>
             <div className="space-y-2">
-              <Label>端口</Label>
+              <Label>{tc("port")}</Label>
               <Input
                 type="number"
                 min="1"
@@ -1481,43 +1484,43 @@ PersistentKeepalive = 25`
                 className={!isValidPort(mixedConfig.listen_port) ? "border-red-500" : ""}
               />
               {!isValidPort(mixedConfig.listen_port) && (
-                <p className="text-xs text-red-500">端口必须在 1-65535 之间</p>
+                <p className="text-xs text-red-500">{t("portRange")}</p>
               )}
             </div>
           </div>
           <div className="space-y-2">
-            <Label>认证方式</Label>
+            <Label>{t("authMode")}</Label>
             <select
               className="w-full h-9 px-3 rounded-md border border-input bg-transparent"
               value={mixedConfig.auth}
               onChange={(e) => setMixedConfig({ ...mixedConfig, auth: e.target.value as "none" | "password" })}
             >
-              <option value="none">无认证</option>
-              <option value="password">密码认证</option>
+              <option value="none">{t("noAuth")}</option>
+              <option value="password">{t("passwordAuth")}</option>
             </select>
           </div>
           {mixedConfig.auth === "password" && (
             <>
               <div className="space-y-2">
-                <Label>用户名</Label>
+                <Label>{tc("username")}</Label>
                 <Input
                   value={mixedConfig.username}
                   onChange={(e) => setMixedConfig({ ...mixedConfig, username: e.target.value })}
-                  placeholder="输入用户名"
+                  placeholder={t("enterUsername")}
                 />
               </div>
               <div className="space-y-2">
-                <Label>密码</Label>
+                <Label>{tc("password")}</Label>
                 <div className="flex gap-2">
                   <Input
                     value={mixedConfig.password}
                     onChange={(e) => setMixedConfig({ ...mixedConfig, password: e.target.value })}
-                    placeholder="输入密码"
+                    placeholder={t("enterPassword")}
                     className="flex-1"
                   />
                   <Button type="button" variant="outline" onClick={generateMixedCredentials}>
                     <Key className="h-4 w-4 mr-1" />
-                    生成
+                    {tc("generate")}
                   </Button>
                 </div>
               </div>
@@ -1526,7 +1529,7 @@ PersistentKeepalive = 25`
           <div className="pt-2">
             <Button type="button" variant="outline" onClick={showMixedQrCode}>
               <QrCode className="h-4 w-4 mr-1" />
-              生成分享二维码
+              {t("generateQrCode")}
             </Button>
           </div>
         </TabsContent>
@@ -1535,18 +1538,18 @@ PersistentKeepalive = 25`
         <TabsContent value="vless" className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label>监听地址</Label>
+              <Label>{t("listenAddr")}</Label>
               <Input
                 value={vlessConfig.listen}
                 onChange={(e) => setVlessConfig({ ...vlessConfig, listen: e.target.value })}
                 className={!isValidListenAddress(vlessConfig.listen) ? "border-red-500" : ""}
               />
               {!isValidListenAddress(vlessConfig.listen) && (
-                <p className="text-xs text-red-500">请输入有效的 IP 地址</p>
+                <p className="text-xs text-red-500">{t("invalidIpAddr")}</p>
               )}
             </div>
             <div className="space-y-2">
-              <Label>端口</Label>
+              <Label>{tc("port")}</Label>
               <Input
                 type="number"
                 min="1"
@@ -1559,14 +1562,14 @@ PersistentKeepalive = 25`
                 className={!isValidPort(vlessConfig.listen_port) ? "border-red-500" : ""}
               />
               {!isValidPort(vlessConfig.listen_port) && (
-                <p className="text-xs text-red-500">端口必须在 1-65535 之间</p>
+                <p className="text-xs text-red-500">{t("portRange")}</p>
               )}
             </div>
           </div>
 
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <Label>用户列表</Label>
+              <Label>{t("users")}</Label>
               <Button
                 size="sm"
                 variant="outline"
@@ -1578,7 +1581,7 @@ PersistentKeepalive = 25`
                 }
               >
                 <Plus className="h-4 w-4 mr-1" />
-                添加
+                {tc("add")}
               </Button>
             </div>
 
@@ -1586,7 +1589,7 @@ PersistentKeepalive = 25`
               <Card key={index} className="p-3">
                 <div className="space-y-2">
                   <div className="flex justify-between items-center">
-                    <Label className="text-sm">用户 {index + 1}</Label>
+                    <Label className="text-sm">{t("userIndex", { n: index + 1 })}</Label>
                     <div className="flex gap-1">
                       <Button
                         size="sm"
@@ -1637,7 +1640,7 @@ PersistentKeepalive = 25`
                     </Button>
                   </div>
                   <Input
-                    placeholder="名称 (可选)"
+                    placeholder={t("nameOptional")}
                     value={user.name || ""}
                     onChange={(e) => {
                       const newUsers = [...vlessConfig.users]
@@ -1646,7 +1649,7 @@ PersistentKeepalive = 25`
                     }}
                   />
                   <div className="space-y-1">
-                    <Label className="text-xs">Flow (流控)</Label>
+                    <Label className="text-xs">{t("flowControl")}</Label>
                     <select
                       className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm"
                       value={user.flow || ""}
@@ -1660,11 +1663,11 @@ PersistentKeepalive = 25`
                         }
                       }}
                     >
-                      <option value="">无 (默认)</option>
-                      <option value="xtls-rprx-vision">xtls-rprx-vision (推荐)</option>
+                      <option value="">{t("noneDefault")}</option>
+                      <option value="xtls-rprx-vision">{t("xtlsRecommended")}</option>
                     </select>
                     {user.flow === "xtls-rprx-vision" && !vlessConfig.tls_enabled && (
-                      <p className="text-xs text-amber-600">xtls-rprx-vision 需要启用 TLS</p>
+                      <p className="text-xs text-amber-600">{t("xtlsRequiresTls")}</p>
                     )}
                   </div>
                 </div>
@@ -1682,7 +1685,7 @@ PersistentKeepalive = 25`
                 onChange={(e) => setVlessConfig({ ...vlessConfig, tls_enabled: e.target.checked })}
                 className="h-4 w-4"
               />
-              <Label htmlFor="vless-tls-enabled">启用 TLS</Label>
+              <Label htmlFor="vless-tls-enabled">{t("enableTls")}</Label>
             </div>
             {vlessConfig.tls_enabled && (
               <div className="space-y-2 pl-6">
@@ -1692,8 +1695,8 @@ PersistentKeepalive = 25`
                     onChange={(e) => setVlessConfig({ ...vlessConfig, tls_mode: e.target.value as "manual" | "acme" })}
                     className="h-9 rounded-md border border-input bg-background px-3 py-1 text-sm"
                   >
-                    <option value="manual">手动配置</option>
-                    <option value="acme">ACME 自动申请</option>
+                    <option value="manual">{t("manualConfig")}</option>
+                    <option value="acme">{t("acmeAuto")}</option>
                   </select>
                   {vlessConfig.tls_mode === "manual" && (
                     <>
@@ -1705,7 +1708,7 @@ PersistentKeepalive = 25`
                         disabled={certLoading}
                       >
                         <Shield className="h-4 w-4 mr-1" />
-                        {certLoading ? "生成中..." : "生成自签名证书"}
+                        {certLoading ? t("generating") : t("generateSelfSignedCert")}
                       </Button>
                       <Button
                         type="button"
@@ -1715,30 +1718,30 @@ PersistentKeepalive = 25`
                         disabled={certLoading}
                       >
                         <Upload className="h-4 w-4 mr-1" />
-                        上传证书
+                        {t("uploadCert")}
                       </Button>
                     </>
                   )}
                   {certInfo && vlessConfig.tls_mode === "manual" && (
                     <span className="text-xs text-muted-foreground self-center">
-                      已生成: {certInfo.common_name} (有效期至 {certInfo.valid_to})
+                      {t("certGenerated", { name: certInfo.common_name ?? "", validTo: certInfo.valid_to ?? "" })}
                     </span>
                   )}
                 </div>
                 {vlessConfig.tls_mode === "acme" ? (
                   <div className="space-y-2">
-                    <Label>ACME 域名</Label>
+                    <Label>{t("acmeDomain")}</Label>
                     <Input
                       value={vlessConfig.tls_acme_domain}
                       onChange={(e) => setVlessConfig({ ...vlessConfig, tls_acme_domain: e.target.value })}
                       placeholder="example.com"
                     />
-                    <p className="text-xs text-muted-foreground">Let's Encrypt 自动申请证书的域名，需要确保域名已解析到本服务器</p>
+                    <p className="text-xs text-muted-foreground">{t("acmeHint")}</p>
                   </div>
                 ) : (
                   <>
                     <div className="space-y-2">
-                      <Label>服务器名称 (可选)</Label>
+                      <Label>{t("serverNameOptional")}</Label>
                       <Input
                         value={vlessConfig.tls_server_name}
                         onChange={(e) => setVlessConfig({ ...vlessConfig, tls_server_name: e.target.value })}
@@ -1746,7 +1749,7 @@ PersistentKeepalive = 25`
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label>证书路径</Label>
+                      <Label>{t("certPath")}</Label>
                       <Input
                         value={vlessConfig.tls_certificate_path}
                         onChange={(e) => setVlessConfig({ ...vlessConfig, tls_certificate_path: e.target.value })}
@@ -1754,7 +1757,7 @@ PersistentKeepalive = 25`
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label>私钥路径</Label>
+                      <Label>{t("keyPath")}</Label>
                       <Input
                         value={vlessConfig.tls_key_path}
                         onChange={(e) => setVlessConfig({ ...vlessConfig, tls_key_path: e.target.value })}
@@ -1769,13 +1772,13 @@ PersistentKeepalive = 25`
 
           {/* Transport 配置 */}
           <div className="space-y-2 border-t pt-4">
-            <Label>传输层协议</Label>
+            <Label>{t("transportProtocol")}</Label>
             <select
               className="w-full h-9 px-3 rounded-md border border-input bg-transparent"
               value={vlessConfig.transport_type}
               onChange={(e) => setVlessConfig({ ...vlessConfig, transport_type: e.target.value })}
             >
-              <option value="tcp">TCP (默认)</option>
+              <option value="tcp">{t("tcpDefault")}</option>
               <option value="ws">WebSocket</option>
               <option value="grpc">gRPC</option>
               <option value="http">HTTP/2</option>
@@ -1811,7 +1814,7 @@ PersistentKeepalive = 25`
         <TabsContent value="wireguard" className="space-y-4">
           <div className="grid grid-cols-3 gap-4">
             <div className="space-y-2">
-              <Label>端口</Label>
+              <Label>{tc("port")}</Label>
               <Input
                 type="number"
                 min="1"
@@ -1824,11 +1827,11 @@ PersistentKeepalive = 25`
                 className={!isValidPort(wgConfig.listen_port) ? "border-red-500" : ""}
               />
               {!isValidPort(wgConfig.listen_port) && (
-                <p className="text-xs text-red-500">端口必须在 1-65535 之间</p>
+                <p className="text-xs text-red-500">{t("portRange")}</p>
               )}
             </div>
             <div className="space-y-2">
-              <Label>接口地址</Label>
+              <Label>{t("interfaceAddr")}</Label>
               <Input
                 value={wgConfig.local_address}
                 onChange={(e) => setWgConfig({ ...wgConfig, local_address: e.target.value })}
@@ -1846,16 +1849,16 @@ PersistentKeepalive = 25`
           </div>
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <Label>私钥</Label>
+              <Label>{t("privateKey")}</Label>
               <Button type="button" size="sm" variant="outline" onClick={generateWireGuardKeys}>
                 <Key className="h-4 w-4 mr-1" />
-                生成密钥
+                {t("generateKey")}
               </Button>
             </div>
             <Input
               value={wgConfig.private_key}
               onChange={(e) => setWgConfig({ ...wgConfig, private_key: e.target.value })}
-              placeholder="点击上方按钮自动生成"
+              placeholder={t("clickToGenerate")}
               readOnly
               className="font-mono text-xs"
             />
@@ -1863,7 +1866,7 @@ PersistentKeepalive = 25`
 
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <Label>对等节点</Label>
+              <Label>{t("peers")}</Label>
               <Button
                 size="sm"
                 variant="outline"
@@ -1876,7 +1879,7 @@ PersistentKeepalive = 25`
                 }}
               >
                 <Plus className="h-4 w-4 mr-1" />
-                添加
+                {tc("add")}
               </Button>
             </div>
 
@@ -1888,16 +1891,16 @@ PersistentKeepalive = 25`
                     <div className="flex gap-2">
                       <Button type="button" size="sm" variant="outline" onClick={() => generatePeerKeys(index)}>
                         <Key className="h-4 w-4 mr-1" />
-                        生成密钥
+                        {t("generateKey")}
                       </Button>
                       {peer.privateKey && (
                         <>
                           <Button type="button" size="sm" variant="outline" onClick={() => showPeerQrCode(index)}>
                             <QrCode className="h-4 w-4 mr-1" />
-                            二维码
+                            {t("qrCode")}
                           </Button>
                           <Button type="button" size="sm" variant="outline" onClick={() => downloadPeerConfig(index)}>
-                            下载配置
+                            {t("downloadConfig")}
                           </Button>
                         </>
                       )}
@@ -1918,9 +1921,9 @@ PersistentKeepalive = 25`
                     </div>
                   </div>
                   <div className="space-y-2">
-                    <Label className="text-xs">公钥 (Public Key)</Label>
+                    <Label className="text-xs">{t("publicKeyLabel")}</Label>
                     <Input
-                      placeholder="点击生成密钥按钮自动生成"
+                      placeholder={t("clickGenerateKey")}
                       value={peer.publicKey}
                       readOnly
                       className="font-mono text-xs"
@@ -1928,12 +1931,12 @@ PersistentKeepalive = 25`
                   </div>
                   {peer.privateKey && (
                     <div className="space-y-2">
-                      <Label className="text-xs text-muted-foreground">私钥 (Private Key) - 对等节点使用</Label>
+                      <Label className="text-xs text-muted-foreground">{t("privateKeyPeer")}</Label>
                       <Input value={peer.privateKey} readOnly className="font-mono text-xs bg-muted" />
                     </div>
                   )}
                   <div className="space-y-2">
-                    <Label className="text-xs">允许的 IP (逗号分隔)</Label>
+                    <Label className="text-xs">{t("allowedIpComma")}</Label>
                     <Input
                       placeholder="0.0.0.0/0"
                       value={peer.allowedIPs.join(", ")}
@@ -1954,18 +1957,18 @@ PersistentKeepalive = 25`
         <TabsContent value="shadowsocks" className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label>监听地址</Label>
+              <Label>{t("listenAddr")}</Label>
               <Input
                 value={ssConfig.listen}
                 onChange={(e) => setSsConfig({ ...ssConfig, listen: e.target.value })}
                 className={!isValidListenAddress(ssConfig.listen) ? "border-red-500" : ""}
               />
               {!isValidListenAddress(ssConfig.listen) && (
-                <p className="text-xs text-red-500">请输入有效的 IP 地址</p>
+                <p className="text-xs text-red-500">{t("invalidIpAddr")}</p>
               )}
             </div>
             <div className="space-y-2">
-              <Label>端口</Label>
+              <Label>{tc("port")}</Label>
               <Input
                 type="number"
                 min="1"
@@ -1978,18 +1981,18 @@ PersistentKeepalive = 25`
                 className={!isValidPort(ssConfig.listen_port) ? "border-red-500" : ""}
               />
               {!isValidPort(ssConfig.listen_port) && (
-                <p className="text-xs text-red-500">端口必须在 1-65535 之间</p>
+                <p className="text-xs text-red-500">{t("portRange")}</p>
               )}
             </div>
           </div>
           <div className="space-y-2">
-            <Label>加密方式</Label>
+            <Label>{t("encryption")}</Label>
             <select
               className="w-full h-9 px-3 rounded-md border border-input bg-transparent"
               value={ssConfig.method}
               onChange={(e) => setSsConfig({ ...ssConfig, method: e.target.value })}
             >
-              <option value="none">none (无加密)</option>
+              <option value="none">{t("noEncryption")}</option>
               <option value="aes-128-gcm">aes-128-gcm</option>
               <option value="aes-192-gcm">aes-192-gcm</option>
               <option value="aes-256-gcm">aes-256-gcm</option>
@@ -2001,12 +2004,12 @@ PersistentKeepalive = 25`
             </select>
           </div>
           <div className="space-y-2">
-            <Label>密码 {ssConfig.method.startsWith("2022-") && "(Base64 密钥)"}</Label>
+            <Label>{tc("password")} {ssConfig.method.startsWith("2022-") && t("ssPasswordLabel")}</Label>
             <div className="flex gap-2">
               <Input
                 value={ssConfig.password}
                 onChange={(e) => setSsConfig({ ...ssConfig, password: e.target.value })}
-                placeholder={ssConfig.method.startsWith("2022-") ? "点击生成按钮生成 Base64 密钥" : "输入密码"}
+                placeholder={ssConfig.method.startsWith("2022-") ? t("clickGenerateBase64") : t("enterPassword")}
                 className="flex-1"
               />
               <Button
@@ -2015,19 +2018,19 @@ PersistentKeepalive = 25`
                 onClick={() => setSsConfig({ ...ssConfig, password: generateSS2022Key(ssConfig.method) })}
               >
                 <Key className="h-4 w-4 mr-1" />
-                生成
+                {tc("generate")}
               </Button>
             </div>
             {ssConfig.method.startsWith("2022-") && (
               <p className="text-xs text-muted-foreground">
-                2022 协议需要 Base64 密钥：aes-128-gcm 需要 16 字节，其他需要 32 字节
+                {t("ss2022Hint")}
               </p>
             )}
           </div>
           <div className="pt-2">
             <Button type="button" variant="outline" onClick={showShadowsocksQrCode} disabled={!ssConfig.password}>
               <QrCode className="h-4 w-4 mr-1" />
-              生成分享二维码
+              {t("generateQrCode")}
             </Button>
           </div>
         </TabsContent>
@@ -2036,7 +2039,7 @@ PersistentKeepalive = 25`
         <TabsContent value="hysteria2" className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label>监听地址</Label>
+              <Label>{t("listenAddr")}</Label>
               <Input
                 value={hy2Config.listen}
                 onChange={(e) => setHy2Config({ ...hy2Config, listen: e.target.value })}
@@ -2044,7 +2047,7 @@ PersistentKeepalive = 25`
               />
             </div>
             <div className="space-y-2">
-              <Label>端口</Label>
+              <Label>{tc("port")}</Label>
               <Input
                 type="number"
                 min="1"
@@ -2060,7 +2063,7 @@ PersistentKeepalive = 25`
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label>上行带宽 (Mbps)</Label>
+              <Label>{t("upBandwidth")}</Label>
               <Input
                 type="number"
                 value={hy2Config.up_mbps}
@@ -2068,7 +2071,7 @@ PersistentKeepalive = 25`
               />
             </div>
             <div className="space-y-2">
-              <Label>下行带宽 (Mbps)</Label>
+              <Label>{t("downBandwidth")}</Label>
               <Input
                 type="number"
                 value={hy2Config.down_mbps}
@@ -2077,20 +2080,20 @@ PersistentKeepalive = 25`
             </div>
           </div>
           <div className="space-y-2">
-            <Label>用户名 (可选)</Label>
+            <Label>{t("usernameOptional")}</Label>
             <Input
               value={hy2Config.user_name}
               onChange={(e) => setHy2Config({ ...hy2Config, user_name: e.target.value })}
-              placeholder="用于标识用户"
+              placeholder={t("identifyUser")}
             />
           </div>
           <div className="space-y-2">
-            <Label>密码</Label>
+            <Label>{tc("password")}</Label>
             <div className="flex gap-2">
               <Input
                 value={hy2Config.password}
                 onChange={(e) => setHy2Config({ ...hy2Config, password: e.target.value })}
-                placeholder="输入密码"
+                placeholder={t("enterPassword")}
                 className="flex-1"
               />
               <Button
@@ -2105,15 +2108,15 @@ PersistentKeepalive = 25`
           </div>
           <div className="space-y-2 border-t pt-4">
             <div className="flex items-center justify-between">
-              <Label>TLS 证书配置</Label>
+              <Label>{t("tlsCertConfig")}</Label>
               <div className="flex gap-2 items-center">
                 <select
                   value={hy2Config.tls_mode}
                   onChange={(e) => setHy2Config({ ...hy2Config, tls_mode: e.target.value as "manual" | "acme" })}
                   className="h-9 rounded-md border border-input bg-background px-3 py-1 text-sm"
                 >
-                  <option value="manual">手动配置</option>
-                  <option value="acme">ACME 自动申请</option>
+                  <option value="manual">{t("manualConfig")}</option>
+                  <option value="acme">{t("acmeAuto")}</option>
                 </select>
                 {hy2Config.tls_mode === "manual" && (
                   <>
@@ -2125,7 +2128,7 @@ PersistentKeepalive = 25`
                       disabled={certLoading}
                     >
                       <Shield className="h-4 w-4 mr-1" />
-                      {certLoading ? "生成中..." : "生成自签名证书"}
+                      {certLoading ? t("generating") : t("generateSelfSignedCert")}
                     </Button>
                     <Button
                       type="button"
@@ -2135,13 +2138,13 @@ PersistentKeepalive = 25`
                       disabled={certLoading}
                     >
                       <Upload className="h-4 w-4 mr-1" />
-                      上传证书
+                      {t("uploadCert")}
                     </Button>
                   </>
                 )}
                 {certInfo && hy2Config.tls_mode === "manual" && (
                   <span className="text-xs text-muted-foreground">
-                    已生成: {certInfo.common_name}
+                    {t("certGeneratedShort", { name: certInfo.common_name ?? "" })}
                   </span>
                 )}
               </div>
@@ -2149,18 +2152,18 @@ PersistentKeepalive = 25`
           </div>
           {hy2Config.tls_mode === "acme" ? (
             <div className="space-y-2">
-              <Label>ACME 域名</Label>
+              <Label>{t("acmeDomain")}</Label>
               <Input
                 value={hy2Config.tls_acme_domain}
                 onChange={(e) => setHy2Config({ ...hy2Config, tls_acme_domain: e.target.value })}
                 placeholder="example.com"
               />
-              <p className="text-xs text-muted-foreground">Let's Encrypt 自动申请证书的域名，需要确保域名已解析到本服务器</p>
+              <p className="text-xs text-muted-foreground">{t("acmeHint")}</p>
             </div>
           ) : (
             <>
               <div className="space-y-2">
-                <Label>TLS 证书路径</Label>
+                <Label>{t("tlsCertPath")}</Label>
                 <Input
                   value={hy2Config.tls_certificate_path}
                   onChange={(e) => setHy2Config({ ...hy2Config, tls_certificate_path: e.target.value })}
@@ -2168,7 +2171,7 @@ PersistentKeepalive = 25`
                 />
               </div>
               <div className="space-y-2">
-                <Label>TLS 私钥路径</Label>
+                <Label>{t("tlsKeyPath")}</Label>
                 <Input
                   value={hy2Config.tls_key_path}
                   onChange={(e) => setHy2Config({ ...hy2Config, tls_key_path: e.target.value })}
@@ -2178,18 +2181,18 @@ PersistentKeepalive = 25`
             </>
           )}
           <div className="space-y-2">
-            <Label>ALPN (应用层协议)</Label>
+            <Label>{t("alpnProtocol")}</Label>
             <Input
               value={hy2Config.tls_alpn.join(", ")}
               onChange={(e) => setHy2Config({ ...hy2Config, tls_alpn: e.target.value.split(",").map(s => s.trim()).filter(Boolean) })}
               placeholder="h3, h3-29"
             />
-            <p className="text-xs text-muted-foreground">多个值用逗号分隔，常用: h3, h3-29</p>
+            <p className="text-xs text-muted-foreground">{t("alpnHint")}</p>
           </div>
           <div className="pt-2">
             <Button type="button" variant="outline" onClick={showHysteria2QrCode} disabled={!hy2Config.password}>
               <QrCode className="h-4 w-4 mr-1" />
-              生成分享二维码
+              {t("generateQrCode")}
             </Button>
           </div>
         </TabsContent>
@@ -2198,7 +2201,7 @@ PersistentKeepalive = 25`
         <TabsContent value="vmess" className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label>监听地址</Label>
+              <Label>{t("listenAddr")}</Label>
               <Input
                 value={vmessConfig.listen}
                 onChange={(e) => setVmessConfig({ ...vmessConfig, listen: e.target.value })}
@@ -2206,7 +2209,7 @@ PersistentKeepalive = 25`
               />
             </div>
             <div className="space-y-2">
-              <Label>端口</Label>
+              <Label>{tc("port")}</Label>
               <Input
                 type="number"
                 min="1"
@@ -2223,7 +2226,7 @@ PersistentKeepalive = 25`
 
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <Label>用户列表</Label>
+              <Label>{t("users")}</Label>
               <Button
                 size="sm"
                 variant="outline"
@@ -2235,7 +2238,7 @@ PersistentKeepalive = 25`
                 }
               >
                 <Plus className="h-4 w-4 mr-1" />
-                添加
+                {tc("add")}
               </Button>
             </div>
 
@@ -2243,7 +2246,7 @@ PersistentKeepalive = 25`
               <Card key={index} className="p-3">
                 <div className="space-y-2">
                   <div className="flex justify-between items-center">
-                    <Label className="text-sm">用户 {index + 1}</Label>
+                    <Label className="text-sm">{t("userIndex", { n: index + 1 })}</Label>
                     <div className="flex gap-1">
                       <Button
                         size="sm"
@@ -2294,7 +2297,7 @@ PersistentKeepalive = 25`
                     </Button>
                   </div>
                   <Input
-                    placeholder="名称 (可选)"
+                    placeholder={t("nameOptional")}
                     value={user.name || ""}
                     onChange={(e) => {
                       const newUsers = [...vmessConfig.users]
@@ -2303,7 +2306,7 @@ PersistentKeepalive = 25`
                     }}
                   />
                   <div className="space-y-1">
-                    <Label className="text-xs">Alter ID (0=禁用旧协议)</Label>
+                    <Label className="text-xs">{t("alterIdHint")}</Label>
                     <Input
                       type="number"
                       min="0"
@@ -2330,7 +2333,7 @@ PersistentKeepalive = 25`
                 onChange={(e) => setVmessConfig({ ...vmessConfig, tls_enabled: e.target.checked })}
                 className="h-4 w-4"
               />
-              <Label htmlFor="vmess-tls-enabled">启用 TLS</Label>
+              <Label htmlFor="vmess-tls-enabled">{t("enableTls")}</Label>
             </div>
             {vmessConfig.tls_enabled && (
               <div className="space-y-2 pl-6">
@@ -2340,8 +2343,8 @@ PersistentKeepalive = 25`
                     onChange={(e) => setVmessConfig({ ...vmessConfig, tls_mode: e.target.value as "manual" | "acme" })}
                     className="h-9 rounded-md border border-input bg-background px-3 py-1 text-sm"
                   >
-                    <option value="manual">手动配置</option>
-                    <option value="acme">ACME 自动申请</option>
+                    <option value="manual">{t("manualConfig")}</option>
+                    <option value="acme">{t("acmeAuto")}</option>
                   </select>
                   {vmessConfig.tls_mode === "manual" && (
                     <>
@@ -2353,7 +2356,7 @@ PersistentKeepalive = 25`
                         disabled={certLoading}
                       >
                         <Shield className="h-4 w-4 mr-1" />
-                        {certLoading ? "生成中..." : "生成自签名证书"}
+                        {certLoading ? t("generating") : t("generateSelfSignedCert")}
                       </Button>
                       <Button
                         type="button"
@@ -2363,25 +2366,25 @@ PersistentKeepalive = 25`
                         disabled={certLoading}
                       >
                         <Upload className="h-4 w-4 mr-1" />
-                        上传证书
+                        {t("uploadCert")}
                       </Button>
                     </>
                   )}
                 </div>
                 {vmessConfig.tls_mode === "acme" ? (
                   <div className="space-y-2">
-                    <Label>ACME 域名</Label>
+                    <Label>{t("acmeDomain")}</Label>
                     <Input
                       value={vmessConfig.tls_acme_domain}
                       onChange={(e) => setVmessConfig({ ...vmessConfig, tls_acme_domain: e.target.value })}
                       placeholder="example.com"
                     />
-                    <p className="text-xs text-muted-foreground">Let's Encrypt 自动申请证书的域名，需要确保域名已解析到本服务器</p>
+                    <p className="text-xs text-muted-foreground">{t("acmeHint")}</p>
                   </div>
                 ) : (
                   <>
                     <div className="space-y-2">
-                      <Label>证书路径</Label>
+                      <Label>{t("certPath")}</Label>
                       <Input
                         value={vmessConfig.tls_certificate_path}
                         onChange={(e) => setVmessConfig({ ...vmessConfig, tls_certificate_path: e.target.value })}
@@ -2389,7 +2392,7 @@ PersistentKeepalive = 25`
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label>私钥路径</Label>
+                      <Label>{t("keyPath")}</Label>
                       <Input
                         value={vmessConfig.tls_key_path}
                         onChange={(e) => setVmessConfig({ ...vmessConfig, tls_key_path: e.target.value })}
@@ -2404,13 +2407,13 @@ PersistentKeepalive = 25`
 
           {/* Transport 配置 */}
           <div className="space-y-2 border-t pt-4">
-            <Label>传输层协议</Label>
+            <Label>{t("transportProtocol")}</Label>
             <select
               className="w-full h-9 px-3 rounded-md border border-input bg-transparent"
               value={vmessConfig.transport_type}
               onChange={(e) => setVmessConfig({ ...vmessConfig, transport_type: e.target.value })}
             >
-              <option value="tcp">TCP (默认)</option>
+              <option value="tcp">{t("tcpDefault")}</option>
               <option value="ws">WebSocket</option>
               <option value="grpc">gRPC</option>
               <option value="http">HTTP/2</option>
@@ -2446,7 +2449,7 @@ PersistentKeepalive = 25`
         <TabsContent value="trojan" className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label>监听地址</Label>
+              <Label>{t("listenAddr")}</Label>
               <Input
                 value={trojanConfig.listen}
                 onChange={(e) => setTrojanConfig({ ...trojanConfig, listen: e.target.value })}
@@ -2454,7 +2457,7 @@ PersistentKeepalive = 25`
               />
             </div>
             <div className="space-y-2">
-              <Label>端口</Label>
+              <Label>{tc("port")}</Label>
               <Input
                 type="number"
                 min="1"
@@ -2471,7 +2474,7 @@ PersistentKeepalive = 25`
 
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <Label>用户列表</Label>
+              <Label>{t("users")}</Label>
               <Button
                 size="sm"
                 variant="outline"
@@ -2483,7 +2486,7 @@ PersistentKeepalive = 25`
                 }
               >
                 <Plus className="h-4 w-4 mr-1" />
-                添加
+                {tc("add")}
               </Button>
             </div>
 
@@ -2491,7 +2494,7 @@ PersistentKeepalive = 25`
               <Card key={index} className="p-3">
                 <div className="space-y-2">
                   <div className="flex justify-between items-center">
-                    <Label className="text-sm">用户 {index + 1}</Label>
+                    <Label className="text-sm">{t("userIndex", { n: index + 1 })}</Label>
                     <div className="flex gap-1">
                       <Button
                         size="sm"
@@ -2518,7 +2521,7 @@ PersistentKeepalive = 25`
                     </div>
                   </div>
                   <Input
-                    placeholder="名称 (可选)"
+                    placeholder={t("nameOptional")}
                     value={user.name || ""}
                     onChange={(e) => {
                       const newUsers = [...trojanConfig.users]
@@ -2528,7 +2531,7 @@ PersistentKeepalive = 25`
                   />
                   <div className="flex gap-2">
                     <Input
-                      placeholder="密码"
+                      placeholder={tc("password")}
                       value={user.password}
                       onChange={(e) => {
                         const newUsers = [...trojanConfig.users]
@@ -2565,8 +2568,8 @@ PersistentKeepalive = 25`
                 onChange={(e) => setTrojanConfig({ ...trojanConfig, tls_enabled: e.target.checked })}
                 className="h-4 w-4"
               />
-              <Label htmlFor="trojan-tls-enabled">启用 TLS</Label>
-              <span className="text-xs text-amber-600">Trojan 协议需要 TLS</span>
+              <Label htmlFor="trojan-tls-enabled">{t("enableTls")}</Label>
+              <span className="text-xs text-amber-600">{t("trojanRequiresTls")}</span>
             </div>
             {trojanConfig.tls_enabled && (
               <div className="space-y-2 pl-6">
@@ -2576,8 +2579,8 @@ PersistentKeepalive = 25`
                     onChange={(e) => setTrojanConfig({ ...trojanConfig, tls_mode: e.target.value as "manual" | "acme" })}
                     className="h-9 rounded-md border border-input bg-background px-3 py-1 text-sm"
                   >
-                    <option value="manual">手动配置</option>
-                    <option value="acme">ACME 自动申请</option>
+                    <option value="manual">{t("manualConfig")}</option>
+                    <option value="acme">{t("acmeAuto")}</option>
                   </select>
                   {trojanConfig.tls_mode === "manual" && (
                     <>
@@ -2589,7 +2592,7 @@ PersistentKeepalive = 25`
                         disabled={certLoading}
                       >
                         <Shield className="h-4 w-4 mr-1" />
-                        {certLoading ? "生成中..." : "生成自签名证书"}
+                        {certLoading ? t("generating") : t("generateSelfSignedCert")}
                       </Button>
                       <Button
                         type="button"
@@ -2599,25 +2602,25 @@ PersistentKeepalive = 25`
                         disabled={certLoading}
                       >
                         <Upload className="h-4 w-4 mr-1" />
-                        上传证书
+                        {t("uploadCert")}
                       </Button>
                     </>
                   )}
                 </div>
                 {trojanConfig.tls_mode === "acme" ? (
                   <div className="space-y-2">
-                    <Label>ACME 域名</Label>
+                    <Label>{t("acmeDomain")}</Label>
                     <Input
                       value={trojanConfig.tls_acme_domain}
                       onChange={(e) => setTrojanConfig({ ...trojanConfig, tls_acme_domain: e.target.value })}
                       placeholder="example.com"
                     />
-                    <p className="text-xs text-muted-foreground">Let's Encrypt 自动申请证书的域名，需要确保域名已解析到本服务器</p>
+                    <p className="text-xs text-muted-foreground">{t("acmeHint")}</p>
                   </div>
                 ) : (
                   <>
                     <div className="space-y-2">
-                      <Label>证书路径</Label>
+                      <Label>{t("certPath")}</Label>
                       <Input
                         value={trojanConfig.tls_certificate_path}
                         onChange={(e) => setTrojanConfig({ ...trojanConfig, tls_certificate_path: e.target.value })}
@@ -2625,7 +2628,7 @@ PersistentKeepalive = 25`
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label>私钥路径</Label>
+                      <Label>{t("keyPath")}</Label>
                       <Input
                         value={trojanConfig.tls_key_path}
                         onChange={(e) => setTrojanConfig({ ...trojanConfig, tls_key_path: e.target.value })}
@@ -2640,13 +2643,13 @@ PersistentKeepalive = 25`
 
           {/* Transport 配置 */}
           <div className="space-y-2 border-t pt-4">
-            <Label>传输层协议</Label>
+            <Label>{t("transportProtocol")}</Label>
             <select
               className="w-full h-9 px-3 rounded-md border border-input bg-transparent"
               value={trojanConfig.transport_type}
               onChange={(e) => setTrojanConfig({ ...trojanConfig, transport_type: e.target.value })}
             >
-              <option value="tcp">TCP (默认)</option>
+              <option value="tcp">{t("tcpDefault")}</option>
               <option value="ws">WebSocket</option>
               <option value="grpc">gRPC</option>
             </select>
@@ -2680,7 +2683,7 @@ PersistentKeepalive = 25`
         <TabsContent value="tuic" className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label>监听地址</Label>
+              <Label>{t("listenAddr")}</Label>
               <Input
                 value={tuicConfig.listen}
                 onChange={(e) => setTuicConfig({ ...tuicConfig, listen: e.target.value })}
@@ -2688,7 +2691,7 @@ PersistentKeepalive = 25`
               />
             </div>
             <div className="space-y-2">
-              <Label>端口</Label>
+              <Label>{tc("port")}</Label>
               <Input
                 type="number"
                 min="1"
@@ -2704,13 +2707,13 @@ PersistentKeepalive = 25`
           </div>
 
           <div className="space-y-2">
-            <Label>拥塞控制算法</Label>
+            <Label>{t("congestionAlgorithm")}</Label>
             <select
               className="w-full h-9 px-3 rounded-md border border-input bg-transparent"
               value={tuicConfig.congestion_control}
               onChange={(e) => setTuicConfig({ ...tuicConfig, congestion_control: e.target.value })}
             >
-              <option value="cubic">CUBIC (默认)</option>
+              <option value="cubic">{t("cubicDefault")}</option>
               <option value="new_reno">New Reno</option>
               <option value="bbr">BBR</option>
             </select>
@@ -2718,7 +2721,7 @@ PersistentKeepalive = 25`
 
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <Label>用户列表</Label>
+              <Label>{t("users")}</Label>
               <Button
                 size="sm"
                 variant="outline"
@@ -2730,7 +2733,7 @@ PersistentKeepalive = 25`
                 }
               >
                 <Plus className="h-4 w-4 mr-1" />
-                添加
+                {tc("add")}
               </Button>
             </div>
 
@@ -2738,7 +2741,7 @@ PersistentKeepalive = 25`
               <Card key={index} className="p-3">
                 <div className="space-y-2">
                   <div className="flex justify-between items-center">
-                    <Label className="text-sm">用户 {index + 1}</Label>
+                    <Label className="text-sm">{t("userIndex", { n: index + 1 })}</Label>
                     <div className="flex gap-1">
                       <Button
                         size="sm"
@@ -2789,7 +2792,7 @@ PersistentKeepalive = 25`
                     </Button>
                   </div>
                   <Input
-                    placeholder="名称 (可选)"
+                    placeholder={t("nameOptional")}
                     value={user.name || ""}
                     onChange={(e) => {
                       const newUsers = [...tuicConfig.users]
@@ -2799,7 +2802,7 @@ PersistentKeepalive = 25`
                   />
                   <div className="flex gap-2">
                     <Input
-                      placeholder="密码 (可选)"
+                      placeholder={t("passwordOptional")}
                       value={user.password || ""}
                       onChange={(e) => {
                         const newUsers = [...tuicConfig.users]
@@ -2829,15 +2832,15 @@ PersistentKeepalive = 25`
           {/* TLS 配置 (TUIC 必须启用 TLS) */}
           <div className="space-y-2 border-t pt-4">
             <div className="flex items-center justify-between">
-              <Label>TLS 证书配置 (TUIC 必须启用 TLS)</Label>
+              <Label>{t("tuicTlsLabel")}</Label>
               <div className="flex gap-2 items-center">
                 <select
                   value={tuicConfig.tls_mode}
                   onChange={(e) => setTuicConfig({ ...tuicConfig, tls_mode: e.target.value as "manual" | "acme" })}
                   className="h-9 rounded-md border border-input bg-background px-3 py-1 text-sm"
                 >
-                  <option value="manual">手动配置</option>
-                  <option value="acme">ACME 自动申请</option>
+                  <option value="manual">{t("manualConfig")}</option>
+                  <option value="acme">{t("acmeAuto")}</option>
                 </select>
                 {tuicConfig.tls_mode === "manual" && (
                   <Button
@@ -2848,25 +2851,25 @@ PersistentKeepalive = 25`
                     disabled={certLoading}
                   >
                     <Shield className="h-4 w-4 mr-1" />
-                    {certLoading ? "生成中..." : "生成自签名证书"}
+                    {certLoading ? t("generating") : t("generateSelfSignedCert")}
                   </Button>
                 )}
               </div>
             </div>
             {tuicConfig.tls_mode === "acme" ? (
               <div className="space-y-2">
-                <Label>ACME 域名</Label>
+                <Label>{t("acmeDomain")}</Label>
                 <Input
                   value={tuicConfig.tls_acme_domain}
                   onChange={(e) => setTuicConfig({ ...tuicConfig, tls_acme_domain: e.target.value })}
                   placeholder="example.com"
                 />
-                <p className="text-xs text-muted-foreground">Let's Encrypt 自动申请证书的域名，需要确保域名已解析到本服务器</p>
+                <p className="text-xs text-muted-foreground">{t("acmeHint")}</p>
               </div>
             ) : (
               <>
                 <div className="space-y-2">
-                  <Label>证书路径</Label>
+                  <Label>{t("certPath")}</Label>
                   <Input
                     value={tuicConfig.tls_certificate_path}
                     onChange={(e) => setTuicConfig({ ...tuicConfig, tls_certificate_path: e.target.value })}
@@ -2874,7 +2877,7 @@ PersistentKeepalive = 25`
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label>私钥路径</Label>
+                  <Label>{t("keyPath")}</Label>
                   <Input
                     value={tuicConfig.tls_key_path}
                     onChange={(e) => setTuicConfig({ ...tuicConfig, tls_key_path: e.target.value })}
@@ -2884,13 +2887,13 @@ PersistentKeepalive = 25`
               </>
             )}
             <div className="space-y-2">
-              <Label>ALPN (应用层协议)</Label>
+              <Label>{t("alpnProtocol")}</Label>
               <Input
                 value={tuicConfig.tls_alpn.join(", ")}
                 onChange={(e) => setTuicConfig({ ...tuicConfig, tls_alpn: e.target.value.split(",").map(s => s.trim()).filter(Boolean) })}
                 placeholder="h3, h3-29"
               />
-              <p className="text-xs text-muted-foreground">多个值用逗号分隔，常用: h3, h3-29</p>
+              <p className="text-xs text-muted-foreground">{t("alpnHint")}</p>
             </div>
           </div>
         </TabsContent>
@@ -2899,7 +2902,7 @@ PersistentKeepalive = 25`
         <TabsContent value="naive" className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label>监听地址</Label>
+              <Label>{t("listenAddr")}</Label>
               <Input
                 value={naiveConfig.listen}
                 onChange={(e) => setNaiveConfig({ ...naiveConfig, listen: e.target.value })}
@@ -2907,7 +2910,7 @@ PersistentKeepalive = 25`
               />
             </div>
             <div className="space-y-2">
-              <Label>端口</Label>
+              <Label>{tc("port")}</Label>
               <Input
                 type="number"
                 min="1"
@@ -2924,7 +2927,7 @@ PersistentKeepalive = 25`
 
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <Label>用户列表</Label>
+              <Label>{t("users")}</Label>
               <Button
                 size="sm"
                 variant="outline"
@@ -2936,7 +2939,7 @@ PersistentKeepalive = 25`
                 }
               >
                 <Plus className="h-4 w-4 mr-1" />
-                添加
+                {tc("add")}
               </Button>
             </div>
 
@@ -2944,7 +2947,7 @@ PersistentKeepalive = 25`
               <Card key={index} className="p-3">
                 <div className="space-y-2">
                   <div className="flex justify-between items-center">
-                    <Label className="text-sm">用户 {index + 1}</Label>
+                    <Label className="text-sm">{t("userIndex", { n: index + 1 })}</Label>
                     {naiveConfig.users.length > 1 && (
                       <Button
                         size="sm"
@@ -2961,7 +2964,7 @@ PersistentKeepalive = 25`
                     )}
                   </div>
                   <Input
-                    placeholder="用户名"
+                    placeholder={tc("username")}
                     value={user.username}
                     onChange={(e) => {
                       const newUsers = [...naiveConfig.users]
@@ -2971,7 +2974,7 @@ PersistentKeepalive = 25`
                   />
                   <div className="flex gap-2">
                     <Input
-                      placeholder="密码"
+                      placeholder={tc("password")}
                       value={user.password}
                       onChange={(e) => {
                         const newUsers = [...naiveConfig.users]
@@ -3001,15 +3004,15 @@ PersistentKeepalive = 25`
           {/* TLS 配置 */}
           <div className="space-y-2 border-t pt-4">
             <div className="flex items-center justify-between">
-              <Label>TLS 证书配置</Label>
+              <Label>{t("tlsCertConfig")}</Label>
               <div className="flex gap-2 items-center">
                 <select
                   value={naiveConfig.tls_mode}
                   onChange={(e) => setNaiveConfig({ ...naiveConfig, tls_mode: e.target.value as "manual" | "acme" })}
                   className="h-9 rounded-md border border-input bg-background px-3 py-1 text-sm"
                 >
-                  <option value="manual">手动配置</option>
-                  <option value="acme">ACME 自动申请</option>
+                  <option value="manual">{t("manualConfig")}</option>
+                  <option value="acme">{t("acmeAuto")}</option>
                 </select>
                 {naiveConfig.tls_mode === "manual" && (
                   <>
@@ -3021,7 +3024,7 @@ PersistentKeepalive = 25`
                       disabled={certLoading}
                     >
                       <Shield className="h-4 w-4 mr-1" />
-                      {certLoading ? "生成中..." : "生成自签名证书"}
+                      {certLoading ? t("generating") : t("generateSelfSignedCert")}
                     </Button>
                     <Button
                       type="button"
@@ -3031,7 +3034,7 @@ PersistentKeepalive = 25`
                       disabled={certLoading}
                     >
                       <Upload className="h-4 w-4 mr-1" />
-                      上传证书
+                      {t("uploadCert")}
                     </Button>
                   </>
                 )}
@@ -3039,18 +3042,18 @@ PersistentKeepalive = 25`
             </div>
             {naiveConfig.tls_mode === "acme" ? (
               <div className="space-y-2">
-                <Label>ACME 域名</Label>
+                <Label>{t("acmeDomain")}</Label>
                 <Input
                   value={naiveConfig.tls_acme_domain}
                   onChange={(e) => setNaiveConfig({ ...naiveConfig, tls_acme_domain: e.target.value })}
                   placeholder="example.com"
                 />
-                <p className="text-xs text-muted-foreground">Let's Encrypt 自动申请证书的域名，需要确保域名已解析到本服务器</p>
+                <p className="text-xs text-muted-foreground">{t("acmeHint")}</p>
               </div>
             ) : (
               <>
                 <div className="space-y-2">
-                  <Label>证书路径</Label>
+                  <Label>{t("certPath")}</Label>
                   <Input
                     value={naiveConfig.tls_certificate_path}
                     onChange={(e) => setNaiveConfig({ ...naiveConfig, tls_certificate_path: e.target.value })}
@@ -3058,7 +3061,7 @@ PersistentKeepalive = 25`
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label>私钥路径</Label>
+                  <Label>{t("keyPath")}</Label>
                   <Input
                     value={naiveConfig.tls_key_path}
                     onChange={(e) => setNaiveConfig({ ...naiveConfig, tls_key_path: e.target.value })}
@@ -3074,7 +3077,7 @@ PersistentKeepalive = 25`
         <TabsContent value="shadowtls" className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label>监听地址</Label>
+              <Label>{t("listenAddr")}</Label>
               <Input
                 value={shadowtlsConfig.listen}
                 onChange={(e) => setShadowtlsConfig({ ...shadowtlsConfig, listen: e.target.value })}
@@ -3082,7 +3085,7 @@ PersistentKeepalive = 25`
               />
             </div>
             <div className="space-y-2">
-              <Label>端口</Label>
+              <Label>{tc("port")}</Label>
               <Input
                 type="number"
                 min="1"
@@ -3098,7 +3101,7 @@ PersistentKeepalive = 25`
           </div>
 
           <div className="space-y-2">
-            <Label>协议版本</Label>
+            <Label>{t("protocolVersion")}</Label>
             <select
               className="w-full h-9 px-3 rounded-md border border-input bg-transparent"
               value={shadowtlsConfig.version}
@@ -3106,13 +3109,13 @@ PersistentKeepalive = 25`
             >
               <option value="1">v1</option>
               <option value="2">v2</option>
-              <option value="3">v3 (推荐)</option>
+              <option value="3">{t("v3Recommended")}</option>
             </select>
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label>握手服务器</Label>
+              <Label>{t("handshakeServer")}</Label>
               <Input
                 value={shadowtlsConfig.handshake_server}
                 onChange={(e) => setShadowtlsConfig({ ...shadowtlsConfig, handshake_server: e.target.value })}
@@ -3120,7 +3123,7 @@ PersistentKeepalive = 25`
               />
             </div>
             <div className="space-y-2">
-              <Label>握手服务器端口</Label>
+              <Label>{t("handshakePort")}</Label>
               <Input
                 type="number"
                 min="1"
@@ -3136,13 +3139,13 @@ PersistentKeepalive = 25`
 
           {shadowtlsConfig.version === 2 && (
             <div className="space-y-2">
-              <Label>密码 (v2)</Label>
+              <Label>{t("passwordV2")}</Label>
               <div className="flex gap-2">
                 <Input
                   type="password"
                   value={shadowtlsConfig.password}
                   onChange={(e) => setShadowtlsConfig({ ...shadowtlsConfig, password: e.target.value })}
-                  placeholder="ShadowTLS v2 密码"
+                  placeholder={t("shadowtlsV2Password")}
                 />
                 <Button
                   size="sm"
@@ -3164,14 +3167,14 @@ PersistentKeepalive = 25`
                 onChange={(e) => setShadowtlsConfig({ ...shadowtlsConfig, strict_mode: e.target.checked })}
                 className="h-4 w-4"
               />
-              <Label htmlFor="shadowtls-strict-mode">严格模式</Label>
+              <Label htmlFor="shadowtls-strict-mode">{t("strictMode")}</Label>
             </div>
           )}
 
           {shadowtlsConfig.version >= 3 && (
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <Label>用户列表 (v3)</Label>
+                <Label>{t("usersV3")}</Label>
                 <Button
                   size="sm"
                   variant="outline"
@@ -3191,7 +3194,7 @@ PersistentKeepalive = 25`
                 <Card key={index} className="p-3">
                   <div className="space-y-2">
                     <div className="flex justify-between items-center">
-                      <Label className="text-sm">用户 {index + 1}</Label>
+                      <Label className="text-sm">{t("userIndex", { n: index + 1 })}</Label>
                       {shadowtlsConfig.users.length > 1 && (
                         <Button
                           size="sm"
@@ -3208,7 +3211,7 @@ PersistentKeepalive = 25`
                       )}
                     </div>
                     <Input
-                      placeholder="名称 (可选)"
+                      placeholder={t("nameOptional")}
                       value={user.name || ""}
                       onChange={(e) => {
                         const newUsers = [...shadowtlsConfig.users]
@@ -3218,7 +3221,7 @@ PersistentKeepalive = 25`
                     />
                     <div className="flex gap-2">
                       <Input
-                        placeholder="密码"
+                        placeholder={tc("password")}
                         value={user.password}
                         onChange={(e) => {
                           const newUsers = [...shadowtlsConfig.users]
@@ -3251,7 +3254,7 @@ PersistentKeepalive = 25`
         <TabsContent value="anytls" className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label>监听地址</Label>
+              <Label>{t("listenAddr")}</Label>
               <Input
                 value={anytlsConfig.listen}
                 onChange={(e) => setAnytlsConfig({ ...anytlsConfig, listen: e.target.value })}
@@ -3259,7 +3262,7 @@ PersistentKeepalive = 25`
               />
             </div>
             <div className="space-y-2">
-              <Label>端口</Label>
+              <Label>{tc("port")}</Label>
               <Input
                 type="number"
                 min="1"
@@ -3276,7 +3279,7 @@ PersistentKeepalive = 25`
 
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <Label>用户列表</Label>
+              <Label>{t("users")}</Label>
               <Button
                 size="sm"
                 variant="outline"
@@ -3288,7 +3291,7 @@ PersistentKeepalive = 25`
                 }
               >
                 <Plus className="h-4 w-4 mr-1" />
-                添加
+                {tc("add")}
               </Button>
             </div>
 
@@ -3296,7 +3299,7 @@ PersistentKeepalive = 25`
               <Card key={index} className="p-3">
                 <div className="space-y-2">
                   <div className="flex justify-between items-center">
-                    <Label className="text-sm">用户 {index + 1}</Label>
+                    <Label className="text-sm">{t("userIndex", { n: index + 1 })}</Label>
                     {anytlsConfig.users.length > 1 && (
                       <Button
                         size="sm"
@@ -3313,7 +3316,7 @@ PersistentKeepalive = 25`
                     )}
                   </div>
                   <Input
-                    placeholder="名称 (可选)"
+                    placeholder={t("nameOptional")}
                     value={user.name || ""}
                     onChange={(e) => {
                       const newUsers = [...anytlsConfig.users]
@@ -3323,7 +3326,7 @@ PersistentKeepalive = 25`
                   />
                   <div className="flex gap-2">
                     <Input
-                      placeholder="密码"
+                      placeholder={tc("password")}
                       value={user.password}
                       onChange={(e) => {
                         const newUsers = [...anytlsConfig.users]
@@ -3353,15 +3356,15 @@ PersistentKeepalive = 25`
           {/* TLS 配置 */}
           <div className="space-y-2 border-t pt-4">
             <div className="flex items-center justify-between">
-              <Label>TLS 证书配置</Label>
+              <Label>{t("tlsCertConfig")}</Label>
               <div className="flex gap-2 items-center">
                 <select
                   value={anytlsConfig.tls_mode}
                   onChange={(e) => setAnytlsConfig({ ...anytlsConfig, tls_mode: e.target.value as "manual" | "acme" })}
                   className="h-9 rounded-md border border-input bg-background px-3 py-1 text-sm"
                 >
-                  <option value="manual">手动配置</option>
-                  <option value="acme">ACME 自动申请</option>
+                  <option value="manual">{t("manualConfig")}</option>
+                  <option value="acme">{t("acmeAuto")}</option>
                 </select>
                 {anytlsConfig.tls_mode === "manual" && (
                   <>
@@ -3373,7 +3376,7 @@ PersistentKeepalive = 25`
                       disabled={certLoading}
                     >
                       <Shield className="h-4 w-4 mr-1" />
-                      {certLoading ? "生成中..." : "生成自签名证书"}
+                      {certLoading ? t("generating") : t("generateSelfSignedCert")}
                     </Button>
                     <Button
                       type="button"
@@ -3383,7 +3386,7 @@ PersistentKeepalive = 25`
                       disabled={certLoading}
                     >
                       <Upload className="h-4 w-4 mr-1" />
-                      上传证书
+                      {t("uploadCert")}
                     </Button>
                   </>
                 )}
@@ -3391,18 +3394,18 @@ PersistentKeepalive = 25`
             </div>
             {anytlsConfig.tls_mode === "acme" ? (
               <div className="space-y-2">
-                <Label>ACME 域名</Label>
+                <Label>{t("acmeDomain")}</Label>
                 <Input
                   value={anytlsConfig.tls_acme_domain}
                   onChange={(e) => setAnytlsConfig({ ...anytlsConfig, tls_acme_domain: e.target.value })}
                   placeholder="example.com"
                 />
-                <p className="text-xs text-muted-foreground">Let's Encrypt 自动申请证书的域名，需要确保域名已解析到本服务器</p>
+                <p className="text-xs text-muted-foreground">{t("acmeHint")}</p>
               </div>
             ) : (
               <>
                 <div className="space-y-2">
-                  <Label>证书路径</Label>
+                  <Label>{t("certPath")}</Label>
                   <Input
                     value={anytlsConfig.tls_certificate_path}
                     onChange={(e) => setAnytlsConfig({ ...anytlsConfig, tls_certificate_path: e.target.value })}
@@ -3410,7 +3413,7 @@ PersistentKeepalive = 25`
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label>私钥路径</Label>
+                  <Label>{t("keyPath")}</Label>
                   <Input
                     value={anytlsConfig.tls_key_path}
                     onChange={(e) => setAnytlsConfig({ ...anytlsConfig, tls_key_path: e.target.value })}
@@ -3426,18 +3429,18 @@ PersistentKeepalive = 25`
         <TabsContent value="http" className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label>监听地址</Label>
+              <Label>{t("listenAddr")}</Label>
               <Input
                 value={httpConfig.listen}
                 onChange={(e) => setHttpConfig({ ...httpConfig, listen: e.target.value })}
                 className={!isValidListenAddress(httpConfig.listen) ? "border-red-500" : ""}
               />
               {!isValidListenAddress(httpConfig.listen) && (
-                <p className="text-xs text-red-500">请输入有效的 IP 地址</p>
+                <p className="text-xs text-red-500">{t("invalidIpAddr")}</p>
               )}
             </div>
             <div className="space-y-2">
-              <Label>端口</Label>
+              <Label>{tc("port")}</Label>
               <Input
                 type="number"
                 min="1"
@@ -3450,40 +3453,40 @@ PersistentKeepalive = 25`
                 className={!isValidPort(httpConfig.listen_port) ? "border-red-500" : ""}
               />
               {!isValidPort(httpConfig.listen_port) && (
-                <p className="text-xs text-red-500">端口必须在 1-65535 之间</p>
+                <p className="text-xs text-red-500">{t("portRange")}</p>
               )}
             </div>
           </div>
 
           {/* 认证配置 */}
           <div className="space-y-2">
-            <Label>认证方式</Label>
+            <Label>{t("authMode")}</Label>
             <select
               className="w-full h-9 px-3 rounded-md border border-input bg-transparent"
               value={httpConfig.auth}
               onChange={(e) => setHttpConfig({ ...httpConfig, auth: e.target.value as "none" | "password" })}
             >
-              <option value="none">无认证</option>
-              <option value="password">密码认证</option>
+              <option value="none">{t("noAuth")}</option>
+              <option value="password">{t("passwordAuth")}</option>
             </select>
           </div>
           {httpConfig.auth === "password" && (
             <>
               <div className="space-y-2">
-                <Label>用户名</Label>
+                <Label>{tc("username")}</Label>
                 <Input
                   value={httpConfig.username}
                   onChange={(e) => setHttpConfig({ ...httpConfig, username: e.target.value })}
-                  placeholder="输入用户名"
+                  placeholder={t("enterUsername")}
                 />
               </div>
               <div className="space-y-2">
-                <Label>密码</Label>
+                <Label>{tc("password")}</Label>
                 <div className="flex gap-2">
                   <Input
                     value={httpConfig.password}
                     onChange={(e) => setHttpConfig({ ...httpConfig, password: e.target.value })}
-                    placeholder="输入密码"
+                    placeholder={t("enterPassword")}
                     className="flex-1"
                   />
                   <Button
@@ -3498,7 +3501,7 @@ PersistentKeepalive = 25`
                     }
                   >
                     <Key className="h-4 w-4 mr-1" />
-                    生成
+                    {tc("generate")}
                   </Button>
                 </div>
               </div>
@@ -3515,7 +3518,7 @@ PersistentKeepalive = 25`
                 onChange={(e) => setHttpConfig({ ...httpConfig, tls_enabled: e.target.checked })}
                 className="h-4 w-4"
               />
-              <Label htmlFor="http-tls-enabled">启用 TLS (HTTPS 代理)</Label>
+              <Label htmlFor="http-tls-enabled">{t("enableTlsHttps")}</Label>
             </div>
             {httpConfig.tls_enabled && (
               <div className="space-y-2 pl-6">
@@ -3528,16 +3531,16 @@ PersistentKeepalive = 25`
                     disabled={certLoading}
                   >
                     <Shield className="h-4 w-4 mr-1" />
-                    {certLoading ? "生成中..." : "生成自签名证书"}
+                    {certLoading ? t("generating") : t("generateSelfSignedCert")}
                   </Button>
                   {certInfo && (
                     <span className="text-xs text-muted-foreground self-center">
-                      已生成: {certInfo.common_name} (有效期至 {certInfo.valid_to})
+                      {t("certGenerated", { name: certInfo.common_name ?? "", validTo: certInfo.valid_to ?? "" })}
                     </span>
                   )}
                 </div>
                 <div className="space-y-2">
-                  <Label>证书路径</Label>
+                  <Label>{t("certPath")}</Label>
                   <Input
                     value={httpConfig.tls_certificate_path}
                     onChange={(e) => setHttpConfig({ ...httpConfig, tls_certificate_path: e.target.value })}
@@ -3545,7 +3548,7 @@ PersistentKeepalive = 25`
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label>私钥路径</Label>
+                  <Label>{t("keyPath")}</Label>
                   <Input
                     value={httpConfig.tls_key_path}
                     onChange={(e) => setHttpConfig({ ...httpConfig, tls_key_path: e.target.value })}
@@ -3569,18 +3572,18 @@ PersistentKeepalive = 25`
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>
-              {qrCodeType === "wireguard" && "WireGuard 客户端配置二维码"}
-              {qrCodeType === "shadowsocks" && "Shadowsocks 分享二维码"}
-              {qrCodeType === "socks5" && "Mixed 分享二维码"}
-              {qrCodeType === "vless" && "VLESS 分享二维码"}
-              {qrCodeType === "hysteria2" && "Hysteria2 分享二维码"}
+              {qrCodeType === "wireguard" && t("qrCodeTitleWireguard")}
+              {qrCodeType === "shadowsocks" && t("qrCodeTitleShadowsocks")}
+              {qrCodeType === "socks5" && t("qrCodeTitleMixed")}
+              {qrCodeType === "vless" && t("qrCodeTitleVless")}
+              {qrCodeType === "hysteria2" && t("qrCodeTitleHysteria2")}
             </DialogTitle>
             <DialogDescription>
-              {qrCodeType === "wireguard" && `使用 WireGuard 移动应用扫描此二维码导入配置 (Peer ${selectedPeerIndex + 1})`}
-              {qrCodeType === "shadowsocks" && "使用 Shadowsocks/小火箭 客户端扫描此二维码导入配置"}
-              {qrCodeType === "socks5" && "使用支持 Socks5 的客户端扫描此二维码导入配置"}
-              {qrCodeType === "vless" && `使用 V2Ray/小火箭 客户端扫描此二维码导入配置 (用户 ${selectedPeerIndex + 1})`}
-              {qrCodeType === "hysteria2" && "使用支持 Hysteria2 的客户端扫描此二维码导入配置"}
+              {qrCodeType === "wireguard" && t("qrCodeDescWireguard", { n: selectedPeerIndex + 1 })}
+              {qrCodeType === "shadowsocks" && t("qrCodeDescShadowsocks")}
+              {qrCodeType === "socks5" && t("qrCodeDescSocks5")}
+              {qrCodeType === "vless" && t("qrCodeDescVless", { n: selectedPeerIndex + 1 })}
+              {qrCodeType === "hysteria2" && t("qrCodeDescHysteria2")}
             </DialogDescription>
           </DialogHeader>
           <div className="flex flex-col items-center gap-4 py-4">
@@ -3589,7 +3592,7 @@ PersistentKeepalive = 25`
             </div>
             {qrCodeType !== "wireguard" && (
               <div className="w-full">
-                <Label className="text-xs text-muted-foreground">分享链接</Label>
+                <Label className="text-xs text-muted-foreground">{t("shareLink")}</Label>
                 <Input
                   value={qrCodeContent}
                   readOnly
@@ -3624,8 +3627,8 @@ PersistentKeepalive = 25`
     return (
       <Card>
         <CardHeader>
-          <CardTitle>入站配置</CardTitle>
-          <CardDescription>选择协议并配置参数 (sing-box 格式)</CardDescription>
+          <CardTitle>{t("title")}</CardTitle>
+          <CardDescription>{t("cardDescription")}</CardDescription>
         </CardHeader>
         <CardContent>{content}</CardContent>
       </Card>
