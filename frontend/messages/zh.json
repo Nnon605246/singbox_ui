@@ -85,6 +85,8 @@
     "minutesAgo": "{n} 分钟前保存",
     "hoursAgo": "{n} 小时前保存",
     "saveConfig": "运行容器",
+    "stopContainer": "停止容器",
+    "startContainer": "启动容器",
     "viewLogs": "查看日志",
     "tabs": {
       "subscription": "订阅",

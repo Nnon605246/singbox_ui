@@ -85,7 +85,9 @@
     "minutesAgo": "{n} min ago",
     "hoursAgo": "{n} hr ago",
     "saveConfig": "Run Container",
-    "viewLogs": "View Logs",
+    "stopContainer": "Stop",
+    "startContainer": "Start",
+    "viewLogs": "Logs",
     "tabs": {
       "subscription": "Subscription",
       "inbound": "Inbound",

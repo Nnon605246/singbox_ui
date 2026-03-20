@@ -483,10 +483,11 @@ export default function Home() {
                         disabled={actionLoading === currentInstance}
                       >
                         {actionLoading === currentInstance ? (
-                          <RotateCw className="h-4 w-4 animate-spin" />
+                          <RotateCw className="h-4 w-4 mr-1 animate-spin" />
                         ) : (
-                          <Square className="h-4 w-4" />
+                          <Square className="h-4 w-4 mr-1" />
                         )}
+                        {t("stopContainer")}
                       </Button>
                     ) : (
                       <Button
@@ -496,10 +497,11 @@ export default function Home() {
                         disabled={actionLoading === currentInstance}
                       >
                         {actionLoading === currentInstance ? (
-                          <RotateCw className="h-4 w-4 animate-spin" />
+                          <RotateCw className="h-4 w-4 mr-1 animate-spin" />
                         ) : (
-                          <Play className="h-4 w-4" />
+                          <Play className="h-4 w-4 mr-1" />
                         )}
+                        {t("startContainer")}
                       </Button>
                     )}
 
@@ -508,9 +510,9 @@ export default function Home() {
                       size="sm"
                       onClick={handleViewLogs}
                       disabled={!currentInstanceInfo.running}
-                      title={t("viewLogs")}
                     >
-                      <FileText className="h-4 w-4" />
+                      <FileText className="h-4 w-4 mr-1" />
+                      {t("viewLogs")}
                     </Button>
 
                     <Button
