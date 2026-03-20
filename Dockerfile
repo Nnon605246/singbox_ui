@@ -2,8 +2,10 @@
 FROM --platform=$BUILDPLATFORM node:22-slim AS frontend
 
 WORKDIR /app/frontend
+COPY frontend/package.json frontend/package-lock.json ./
+RUN npm install
 COPY frontend/ .
-RUN npm ci && npx next build
+RUN npx next build
 
 # 后端构建阶段:根据目标平台交叉编译
 FROM --platform=$BUILDPLATFORM golang:alpine AS builder
