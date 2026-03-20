@@ -1692,6 +1692,31 @@ export const useSingboxConfigStore = create<SingboxConfigStore>((set, get) => ({
       outbounds.push({ type: "direct", tag: "proxy_out" })
     }
 
+    // Auto-fill domain_resolver for DNS servers that use domain addresses (https/tls/quic/h3)
+    if (fullConfig.dns?.servers) {
+      const domainTypes = new Set(["https", "tls", "quic", "h3"])
+      // Find a suitable resolver: udp/tcp server with IP address (not domain)
+      const ipResolver = fullConfig.dns.servers.find(
+        (s) => (s.type === "udp" || s.type === "tcp") && s.server && /^[\d.:]+$/.test(s.server)
+      )
+      if (ipResolver) {
+        fullConfig.dns = {
+          ...fullConfig.dns,
+          servers: fullConfig.dns.servers.map((server) => {
+            if (
+              domainTypes.has(server.type || "") &&
+              server.server &&
+              !/^[\d.:]+$/.test(server.server) &&
+              !server.domain_resolver
+            ) {
+              return { ...server, domain_resolver: ipResolver.tag }
+            }
+            return server
+          }),
+        }
+      }
+    }
+
     // If no proxy outbound, remove detour from DNS servers and remove rule_set based DNS rules
     // (geo-based DNS routing is pointless when everything goes direct)
     if (!hasProxyOutbound && fullConfig.dns) {
