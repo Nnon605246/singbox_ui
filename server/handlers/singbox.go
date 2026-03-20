@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"log"
 	"net/http"
 	"regexp"
 	"singbox-config-service/services"
@@ -294,6 +295,7 @@ func RunNamedContainer(c *gin.Context) {
 
 	containerID, err := services.RunNamedContainer(name)
 	if err != nil {
+		log.Printf("Failed to start container for %s: %v", name, err)
 		c.JSON(http.StatusInternalServerError, ErrorResponse{
 			Error:   "Failed to start container",
 			Message: err.Error(),
